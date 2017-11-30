@@ -3,6 +3,7 @@ from typing import List
 import pandas
 from pandas import DataFrame, Series
 from numpy.random import RandomState
+from numpy import ndarray as NDArray
 
 from src import paths
 
@@ -11,15 +12,15 @@ CLUSTER_SIZE_KEY = "CLUSTER_SIZE"
 
 
 def calc_cluster_distribution(population_size: int, random_seed=47):
-    cluster_sizes = _obtain_cluster_sizes(CLUSTER_INFO_FILE_NAME)
+    cluster_probabilities = _obtain_cluster_probabilities(CLUSTER_INFO_FILE_NAME)
     random = RandomState(random_seed)
-    return random.multinomial(population_size, cluster_sizes, size=1)[0]
+    return random.multinomial(population_size, cluster_probabilities, size=1)[0]
 
 
-def _obtain_cluster_sizes(file_name: str) -> List[float]:
+def _obtain_cluster_probabilities(file_name: str) -> NDArray:
     dataframe = _load_cluster_sizes_file(file_name)
-    cluster_sizes = _obtain_relative_cluster_sizes(dataframe)
-    return cluster_sizes.tolist()
+    cluster_probabilities = _obtain_relative_cluster_sizes(dataframe)
+    return cluster_probabilities.as_matrix()
 
 
 def _load_cluster_sizes_file(file_name: str) -> DataFrame:

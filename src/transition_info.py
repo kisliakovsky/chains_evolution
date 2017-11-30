@@ -1,3 +1,5 @@
+from typing import Tuple, List, Dict
+
 import pandas
 from pandas import DataFrame
 # noinspection PyPep8Naming
@@ -8,6 +10,22 @@ from src import paths
 TRANSITION_MATRIX_FILE_NAME = "Transition_matrix"
 
 
+def obtain_sources_and_transition_probabilities(index: int) -> Dict[str, NDArray]:
+    file_name = _build_file_name(index)
+    dataframe = _load_transition_matrix_file(file_name)
+    sources = []
+    transition_probabilities_by_sources = {}
+    for source, transition_probabilities in dataframe.iterrows():
+        source = {
+            "*01": "Y",
+            "_01": "X"
+        }.get(source, source)
+        sources.append(source)
+        transition_probabilities = transition_probabilities.as_matrix()
+        transition_probabilities_by_sources[source] = transition_probabilities
+    return sources, transition_probabilities_by_sources
+
+
 def _load_transition_matrix_file(file_name: str) -> DataFrame:
     file_path = paths.build_input_table_path(file_name)
     return pandas.read_csv(str(file_path), header=0, index_col=0, sep=';')
@@ -15,9 +33,3 @@ def _load_transition_matrix_file(file_name: str) -> DataFrame:
 
 def _build_file_name(index: int):
     return TRANSITION_MATRIX_FILE_NAME + str(index)
-
-
-def obtain_transition_matrix(index: int) -> NDArray:
-    file_name = _build_file_name(index)
-    dataframe = _load_transition_matrix_file(file_name)
-    return dataframe.as_matrix()
