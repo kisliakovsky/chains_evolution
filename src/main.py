@@ -1,4 +1,5 @@
-from src.dist_among_clusters import calc_cluster_distribution
+from src.clusters_info import calc_cluster_distribution
+from src.transition_info import obtain_transition_matrix
 
 NUMBER_OF_CLUSTERS = 10
 POPULATION_SIZE = 100
@@ -14,9 +15,10 @@ def main():
         cluster_distribution = calc_cluster_distribution(POPULATION_SIZE, random_seed=47)
     for i in range(NUMBER_OF_CLUSTERS):
         cluster_size = cluster_distribution[i]
+        transition_matrix = obtain_transition_matrix(i)
         for each in range(cluster_size):
             pass  # TODO: Implement a pathway generation.
 
 
 if __name__ == '__main__':
-    pass
+    main()
