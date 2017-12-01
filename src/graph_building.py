@@ -15,4 +15,9 @@ def _build_json(sequences: List[str]) -> str:
 
 def build_as_dict(sequences: List[str]) -> Dict:
     distances = calculate_distances(sequences)
-    return {"temp0": 55, "temp1": 79}
+    number_of_rows = len(distances)
+    number_of_columns = len(distances[0])
+    for i in range(1, number_of_rows):
+        for j in range(i + 1, number_of_columns):
+            print("{} {}: {}".format(i, j, distances[i][j]))
+    return {"temp0": distances[0][0], "temp1": distances[1][1]}
