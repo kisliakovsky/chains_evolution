@@ -1,8 +1,7 @@
-from typing import List
-
 import pandas
 from pandas import DataFrame, Series
 from numpy.random import RandomState
+# noinspection PyPep8Naming
 from numpy import ndarray as NDArray
 
 from src import paths
@@ -11,7 +10,7 @@ CLUSTER_INFO_FILE_NAME = "clusters_size"
 CLUSTER_SIZE_KEY = "CLUSTER_SIZE"
 
 
-def calc_cluster_distribution(population_size: int, random_seed=47):
+def calc_cluster_distribution(population_size: int, random_seed=47) -> NDArray:
     cluster_probabilities = _obtain_cluster_probabilities(CLUSTER_INFO_FILE_NAME)
     random = RandomState(random_seed)
     return random.multinomial(population_size, cluster_probabilities, size=1)[0]

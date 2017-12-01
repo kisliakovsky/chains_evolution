@@ -6,19 +6,20 @@ from pandas import DataFrame
 from numpy import ndarray as NDArray
 
 from src import paths
+from src.pathways import FINISH_LOCATION, START_LOCATION
 
 TRANSITION_MATRIX_FILE_NAME = "Transition_matrix"
 
 
-def obtain_sources_and_transition_probabilities(index: int) -> Dict[str, NDArray]:
+def obtain_sources_and_transition_probabilities(index: int) -> Tuple[List[str], Dict[str, NDArray]]:
     file_name = _build_file_name(index)
     dataframe = _load_transition_matrix_file(file_name)
     sources = []
     transition_probabilities_by_sources = {}
     for source, transition_probabilities in dataframe.iterrows():
         source = {
-            "*01": "Y",
-            "_01": "X"
+            "_01": START_LOCATION,
+            "*01": FINISH_LOCATION
         }.get(source, source)
         sources.append(source)
         transition_probabilities = transition_probabilities.as_matrix()
