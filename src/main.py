@@ -3,13 +3,18 @@ from typing import List
 from src.clusters_info import calc_cluster_distribution
 from src.pathways import collect_pathways
 
-NUMBER_OF_CLUSTERS = 10
 POPULATION_SIZE = 100
+
+POPULATION_SIZE_KEY = "population_size"
+DISTRIBUTION_KEY = "distribution"
+PATHWAYS_KEY = "pathways"
+FAVORITE_PATHWAY_KEY = "favorite_pathway"
 
 CACHE = False
 CACHED = {
-    "distribution": [1, 34, 14, 4, 19, 8, 2, 6, 6, 6],
-    "pathways": ['XAFIFEDY', 'XANFEY', 'XANFEY', 'XANFEY', 'XAFNIFEY', 'XAFNFEY', 'XAFNFEY', 'XAFNFEY', 'XAFNFEY',
+    POPULATION_SIZE_KEY: 100,
+    DISTRIBUTION_KEY: [1, 34, 14, 4, 19, 8, 2, 6, 6, 6],
+    PATHWAYS_KEY: ['XAFIFEDY', 'XANFEY', 'XANFEY', 'XANFEY', 'XAFNIFEY', 'XAFNFEY', 'XAFNFEY', 'XAFNFEY', 'XAFNFEY',
                  'XAFNFEY', 'XAFNFEY', 'XAFNFEY', 'XAFNFEY', 'XAFNFEY', 'XAFINFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY',
                  'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY',
                  'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAIEY',
@@ -21,14 +26,14 @@ CACHED = {
                  'XAFNIFEDY', 'XAFNIFEDY', 'XAIFEY', 'XAIFEY', 'XAIFEY', 'XAIFY', 'XAIEY', 'XAFIEY', 'XAFNIFY',
                  'XAFNFDY', 'XAFNFDY', 'XAFEIEDY', 'XAFEFDY', 'XAFEDY', 'XAFNIFEDEY', 'XAFNIFEDEY', 'XAFNIFEDEY',
                  'XAFNIFEDEY', 'XAFNIFEDEY', 'XAFNFEY'],
-    "favorite_pathway": 'XAFNIFEIFEY'
+    FAVORITE_PATHWAY_KEY: 'XAFNIFEIFEY'
 }
 
 
 def main():
     if CACHE:
-        pathways = CACHED["pathways"]
-        favorite_pathway = CACHED["favorite_pathway"]
+        pathways = CACHED[PATHWAYS_KEY]
+        favorite_pathway = CACHED[FAVORITE_PATHWAY_KEY]
     else:
         cluster_distribution = calc_cluster_distribution(POPULATION_SIZE, random_seed=47)
         pathways = collect_pathways(cluster_distribution)
