@@ -2,7 +2,8 @@ from typing import List
 
 from src.clusters_info import calc_cluster_distribution
 from src.pathways import collect_pathways, collect_unique_pathways
-from src import graph_building, graph_exporting
+from src import graph_building, graph_exporting, evolution
+from src import strings
 
 POPULATION_SIZE = 100
 
@@ -45,7 +46,9 @@ def main():
         cluster_distribution = calc_cluster_distribution(POPULATION_SIZE, random_seed=47)
         pathways = collect_unique_pathways(cluster_distribution)
         favorite_pathway = select_favorite_pathway(pathways)
-    graph_exporting.save_for_cytoscape(pathways)
+    # graph_exporting.save_for_cytoscape(pathways)
+    subpathways = evolution.obtain_evolution_subsequences(favorite_pathway)
+    print(subpathways)
 
 
 def select_favorite_pathway(pathways: List[str]):
