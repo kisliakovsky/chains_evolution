@@ -4,24 +4,27 @@ from numpy.random import RandomState
 # noinspection PyPep8Naming
 from numpy import ndarray as NDArray
 
-
 from src.transition_info import obtain_sources_and_transition_probabilities
+
+Pathway = str
+Location = str
+PathwayList = List[Location]
 
 START_LOCATION = "X"
 FINISH_LOCATION = "Y"
 
 
-def collect_unique_pathways(cluster_distribution: NDArray) -> List[str]:
+def collect_unique_pathways(cluster_distribution: NDArray) -> List[Pathway]:
     pathways = collect_pathways(cluster_distribution)
     return list(set(pathways))
 
 
-def collect_pathways(cluster_distribution: NDArray) -> List[str]:
+def collect_pathways(cluster_distribution: NDArray) -> List[Pathway]:
     pathways_by_clusters = collect_pathways_by_clusters(cluster_distribution)
     return [pathway for cluster_pathways in pathways_by_clusters for pathway in cluster_pathways]
 
 
-def collect_pathways_by_clusters(cluster_distribution: NDArray) -> List[List[str]]:
+def collect_pathways_by_clusters(cluster_distribution: NDArray) -> List[List[Pathway]]:
     pathways_by_clusters = _collect_pathways_by_clusters(cluster_distribution)
     new_pathways_by_clusters = []
     for pathways in pathways_by_clusters:
@@ -33,7 +36,7 @@ def collect_pathways_by_clusters(cluster_distribution: NDArray) -> List[List[str
     return new_pathways_by_clusters
 
 
-def _collect_pathways_by_clusters(cluster_distribution: NDArray) -> List[List[List[str]]]:
+def _collect_pathways_by_clusters(cluster_distribution: NDArray) -> List[List[PathwayList]]:
     pathways_by_clusters = []
     for i, cluster_size in enumerate(cluster_distribution):
         sources, transition_probabilities_by_sources = obtain_sources_and_transition_probabilities(i, START_LOCATION,
@@ -57,5 +60,5 @@ def _collect_pathways_by_clusters(cluster_distribution: NDArray) -> List[List[Li
     return pathways_by_clusters
 
 
-def _check_all_pathways_is_over(current_sources: Set[str]):
+def _check_all_pathways_is_over(current_sources: Set[Location]):
     return len(current_sources) == 1 and list(current_sources)[0] == FINISH_LOCATION

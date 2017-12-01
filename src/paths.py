@@ -14,3 +14,7 @@ def build_input_table_path(file_name: str) -> Path:
 
 def build_output_graph_path(file_name: str) -> Path:
     return EXPORT_DIR.joinpath(file_name).with_suffix(".{}".format(JSON_EXT)).resolve()
+
+
+def build_output_table_path(file_name: str) -> Path:
+    return EXPORT_DIR.joinpath(file_name).with_suffix(".{}".format(CSV_EXT)).resolve()

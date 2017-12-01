@@ -1,5 +1,7 @@
 import json
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Tuple
+
+from pandas import DataFrame
 
 from src.distances import calculate_distances
 
@@ -51,3 +53,7 @@ def _create_edge(source: str, target: str, weight: int) -> Element:
             "weight": weight
         }
     }
+
+
+def build_as_dataframes(sequences: List[str]) -> Tuple[DataFrame, DataFrame]:
+    return DataFrame({'A': []}), DataFrame({'A': []})

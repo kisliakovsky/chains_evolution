@@ -12,6 +12,7 @@ DISTRIBUTION_KEY = "distribution"
 PATHWAYS_KEY = "pathways"
 UNIQUE_PATHWAYS_KEY = "unique_pathways"
 FAVORITE_PATHWAY_KEY = "favorite_pathway"
+FAVORITE_SUBPATHWAYS_KEY = "favorite_subpathways"
 
 CACHE = True
 CACHED = {
@@ -33,7 +34,8 @@ CACHED = {
                           'XAIEY', 'XAEDY', 'XAFEY', 'XANFEDEY', 'XAIFEY', 'XAFY', 'XAFIFEIFEDY', 'XAFNFNIFEIFEY',
                           'XAEFEDY', 'XANIFEFDY', 'XAIY', 'XAFNFEFIFEY', 'XAFNFEDEY', 'XAFIFEDY', 'XAFDY', 'XAFIDY',
                           'XAFIFIFY', 'XAFNIEY', 'XAFIEY', 'XAFNFEY', 'XAFNFIFEY', 'XAFEIEY', 'XAFNIFEY', 'XAFIFEY'],
-    FAVORITE_PATHWAY_KEY: 'XAEFEDY'
+    FAVORITE_PATHWAY_KEY: 'XAEFEDY',
+    FAVORITE_SUBPATHWAYS_KEY: ['XAE', 'XAEF', 'XAEFE', 'XAEFED', 'XAEFEDY']
 }
 
 
@@ -41,14 +43,14 @@ def main():
     if CACHE:
         cluster_distribution = CACHED[DISTRIBUTION_KEY]
         pathways = CACHED[UNIQUE_PATHWAYS_KEY]
-        favorite_pathway = CACHED[FAVORITE_PATHWAY_KEY]
+        favorite_subpathways = CACHED[FAVORITE_SUBPATHWAYS_KEY]
     else:
         cluster_distribution = calc_cluster_distribution(POPULATION_SIZE, random_seed=47)
         pathways = collect_unique_pathways(cluster_distribution)
         favorite_pathway = select_favorite_pathway(pathways)
-    # graph_exporting.save_for_cytoscape(pathways)
-    subpathways = evolution.obtain_evolution_subsequences(favorite_pathway)
-    print(subpathways)
+        favorite_subpathways = evolution.obtain_evolution_subsequences(favorite_pathway)
+    graph_exporting.save_for_cytoscape(pathways)
+    graph_exporting.save_for_gephi(pathways)
 
 
 def select_favorite_pathway(pathways: List[str]):

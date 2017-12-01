@@ -35,6 +35,3 @@ def _obtain_relative_cluster_sizes(dataframe: DataFrame) -> Series:
 
 def _obtain_absolute_cluster_sizes(dataframe: DataFrame) -> Series:
     return dataframe[CLUSTER_SIZE_KEY]
-
-
-# print(calc_cluster_distribution(100))
