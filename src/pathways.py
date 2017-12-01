@@ -62,3 +62,12 @@ def _collect_pathways_by_clusters(cluster_distribution: NDArray) -> List[List[Pa
 
 def _check_all_pathways_is_over(current_sources: Set[Location]):
     return len(current_sources) == 1 and list(current_sources)[0] == FINISH_LOCATION
+
+
+def select_favorite_pathway(pathways: List[Pathway]):
+    index = len(pathways) // 2
+    return pathways[index]
+
+
+def filter_pathways(pathways: List[Pathway], subpathway: Pathway) -> List[Pathway]:
+    return [pathway for pathway in pathways if pathway.startswith(subpathway)]

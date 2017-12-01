@@ -1,7 +1,7 @@
 from typing import List
 
 from src.clusters_info import calc_cluster_distribution
-from src.pathways import collect_pathways, collect_unique_pathways
+from src.pathways import collect_pathways, collect_unique_pathways, select_favorite_pathway, filter_pathways
 from src import graph_building, graph_exporting, evolution
 from src import strings
 
@@ -49,13 +49,11 @@ def main():
         pathways = collect_unique_pathways(cluster_distribution)
         favorite_pathway = select_favorite_pathway(pathways)
         favorite_subpathways = evolution.obtain_evolution_subsequences(favorite_pathway)
-    graph_exporting.save_for_cytoscape(pathways)
-    graph_exporting.save_for_gephi(pathways)
-
-
-def select_favorite_pathway(pathways: List[str]):
-    index = len(pathways) // 2
-    return pathways[index]
+    # first_subpathway = favorite_subpathways[0]
+    # filtered_pathways = filter_pathways(pathways, first_subpathway)
+    # print(filtered_pathways)
+    graph_exporting.save_for_cytoscape(pathways, "main")
+    graph_exporting.save_for_gephi(pathways, "main")
 
 
 if __name__ == '__main__':
