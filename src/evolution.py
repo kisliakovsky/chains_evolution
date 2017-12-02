@@ -15,7 +15,6 @@ def obtain_evolution_subsequences(sequence: str):
 class ChildGenerator(object):
 
     def __init__(self, parents: List[str]):
-        parents = ["XABCY", "XDEFGY", "XHIJKLMY", "XHIFGY", "XABJKLMY"]
         self.__unique_genes = [parent[1:-1] for parent in parents]
         self.__gene_lengths = self.__get_gene_lengths()
         self.__unique_lengths, self.__length_repetitions = self.__get_length_repetitions()
@@ -62,9 +61,3 @@ class ChildGenerator(object):
             code_probabilities = [repetition / len(codes) for repetition in code_repetitions]
             all_code_probabilities.append(tuple((unique_codes, code_probabilities, RandomState())))
         return all_code_probabilities
-
-
-child_generator = ChildGenerator([])
-
-print(child_generator.generate())
-print(child_generator.generate())
