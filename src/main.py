@@ -5,37 +5,6 @@ from src.evolution import ChildGenerator
 
 POPULATION_SIZE = 3500
 
-POPULATION_SIZE_KEY = "population_size"
-DISTRIBUTION_KEY = "distribution"
-PATHWAYS_KEY = "pathways"
-UNIQUE_PATHWAYS_KEY = "unique_pathways"
-FAVORITE_PATHWAY_KEY = "favorite_pathway"
-FAVORITE_SUBPATHWAYS_KEY = "favorite_subpathways"
-
-CACHE = False
-CACHED = {
-    POPULATION_SIZE_KEY: 100,
-    DISTRIBUTION_KEY: [1, 34, 14, 4, 19, 8, 2, 6, 6, 6],
-    PATHWAYS_KEY: ['XAEFEDY', 'XANFEDEY', 'XAFNIFEY', 'XAFNFEDY', 'XAFNFEDY', 'XAFNFEDY', 'XAFNFEY', 'XAFNFEY',
-                   'XAFNFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY',
-                   'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY',
-                   'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY',
-                   'XANFIDY', 'XAIY', 'XAFEDY', 'XAFEY', 'XAFEY', 'XAFEY', 'XAFEY', 'XAFDY', 'XAFDY', 'XAFY', 'XAFY',
-                   'XAFY', 'XAFY', 'XAFY', 'XAFNIFEDY', 'XAFNIFEDY', 'XAFNIFEDY', 'XAFNFNIFEIFEY', 'XAFNIFEDY',
-                   'XAFNIFEDY', 'XAFNIFEY', 'XAFNIFEY', 'XAFNIFEY', 'XAFNIFEY', 'XAFNIFEY', 'XAFNIFEY', 'XAFNIFEY',
-                   'XAFNIFEY', 'XAFNIFEY', 'XAFNIFEY', 'XAFNIFEY', 'XAFNIFEY', 'XAFNIFEY', 'XAFNIFEY', 'XAFNIFEY',
-                   'XAFNIFEY', 'XAFNFIFEY', 'XANIFEFDY', 'XAIEDY', 'XAFIFIFY', 'XAFIFEIFEDY', 'XAFIFEDY', 'XAFIFEDY',
-                   'XAFIFEDY', 'XAFEDY', 'XAFNFEFIFEY', 'XAEDY', 'XAIFEY', 'XAIFEY', 'XAIEY', 'XAFIFEY', 'XAFIEY',
-                   'XAFIDY', 'XANFDY', 'XAFNIFY', 'XAFNIFY', 'XAFNIFY', 'XAFNIEY', 'XAFEIEY', 'XAFNIFEDEY',
-                   'XAFNIFEDEY', 'XAFNIFEDEY', 'XAFNIFEDEY', 'XAFNIFEDEY', 'XAFNFEDEY'],
-    UNIQUE_PATHWAYS_KEY: ['XANFIDY', 'XAFNIFY', 'XAFNIFEDEY', 'XANFDY', 'XAFEDY', 'XAFNIFEDY', 'XAFNFEDY', 'XAIEDY',
-                          'XAIEY', 'XAEDY', 'XAFEY', 'XANFEDEY', 'XAIFEY', 'XAFY', 'XAFIFEIFEDY', 'XAFNFNIFEIFEY',
-                          'XAEFEDY', 'XANIFEFDY', 'XAIY', 'XAFNFEFIFEY', 'XAFNFEDEY', 'XAFIFEDY', 'XAFDY', 'XAFIDY',
-                          'XAFIFIFY', 'XAFNIEY', 'XAFIEY', 'XAFNFEY', 'XAFNFIFEY', 'XAFEIEY', 'XAFNIFEY', 'XAFIFEY'],
-    FAVORITE_PATHWAY_KEY: 'XAEFEDY',
-    FAVORITE_SUBPATHWAYS_KEY: ['XAE', 'XAEF', 'XAEFE', 'XAEFED', 'XAEFEDY']
-}
-
 
 def main():
     population_size = POPULATION_SIZE
@@ -48,8 +17,9 @@ def main():
     graph_exporting.save_for_gephi({0: pathways}, step_name)
     number_of_steps = len(favorite_subpathways)
     intermediate_step_index = number_of_steps // 2
-    penultimate_step_index = number_of_steps - 2
+    last_step_index = number_of_steps - 1
     for step_index, subpathway in enumerate(favorite_subpathways):
+        print("Progress: step {}/{}".format(step_index, last_step_index))
         filtered_pathways = filter_pathways(pathways, subpathway)
         pathway_generator = ChildGenerator(filtered_pathways)
         new_pathways = filtered_pathways[:]
@@ -60,10 +30,8 @@ def main():
         new_pathways = list(new_pathways_set)
         step_name = "step{}".format(step_index)
         main_pathways = list(pathways_set - new_pathways_set)
-        if step_index == intermediate_step_index:
-            graph_exporting.save_for_gephi({0: main_pathways, 1: new_pathways}, step_name + "intermediate")
-        if step_index == penultimate_step_index:
-            graph_exporting.save_for_gephi({0: main_pathways, 2: new_pathways}, step_name + "penultimate")
+        if step_index >= intermediate_step_index:
+            graph_exporting.save_for_gephi({0: main_pathways, step_index: new_pathways}, step_name)
 
 
 if __name__ == '__main__':
