@@ -14,8 +14,8 @@ START_LOCATION = "X"
 FINISH_LOCATION = "Y"
 
 
-def collect_pathways(cluster_distribution: NDArray) -> Tuple[List[int], List[Pathway]]:
-    pathways_by_clusters = collect_pathways_by_clusters(cluster_distribution)
+def collect_all_pathways(cluster_distribution: NDArray) -> Tuple[List[int], List[Pathway]]:
+    pathways_by_clusters = collect_all_pathways_by_clusters(cluster_distribution)
     cluster_indices = []
     pathways = []
     for cluster_index, cluster_pathways in enumerate(pathways_by_clusters):
@@ -25,7 +25,7 @@ def collect_pathways(cluster_distribution: NDArray) -> Tuple[List[int], List[Pat
     return cluster_indices, pathways
 
 
-def collect_pathways_by_clusters(cluster_distribution: NDArray) -> List[List[Pathway]]:
+def collect_all_pathways_by_clusters(cluster_distribution: NDArray) -> List[List[Pathway]]:
     pathways_by_clusters = _collect_pathways_by_clusters(cluster_distribution)
     new_pathways_by_clusters = []
     for pathways in pathways_by_clusters:
@@ -63,12 +63,3 @@ def _collect_pathways_by_clusters(cluster_distribution: NDArray) -> List[List[Pa
 
 def _check_all_pathways_is_over(current_sources: Set[Location]):
     return len(current_sources) == 1 and list(current_sources)[0] == FINISH_LOCATION
-
-
-def select_favorite_pathway(pathways: List[Pathway]):
-    index = len(pathways) // 2
-    return pathways[index]
-
-
-def filter_pathways(pathways: List[Pathway], subpathway: Pathway) -> List[Pathway]:
-    return [pathway for pathway in pathways if pathway.startswith(subpathway)]
