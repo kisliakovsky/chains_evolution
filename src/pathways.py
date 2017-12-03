@@ -1,4 +1,4 @@
-from typing import Set, List
+from typing import Set, List, Tuple
 
 from numpy.random import RandomState
 # noinspection PyPep8Naming
@@ -14,9 +14,15 @@ START_LOCATION = "X"
 FINISH_LOCATION = "Y"
 
 
-def collect_pathways(cluster_distribution: NDArray) -> List[Pathway]:
+def collect_pathways(cluster_distribution: NDArray) -> Tuple[List[int], List[Pathway]]:
     pathways_by_clusters = collect_pathways_by_clusters(cluster_distribution)
-    return [pathway for cluster_pathways in pathways_by_clusters for pathway in cluster_pathways]
+    cluster_indices = []
+    pathways = []
+    for cluster_index, cluster_pathways in enumerate(pathways_by_clusters):
+        for pathway in cluster_pathways:
+            pathways.append(pathway)
+            cluster_indices.append(cluster_index)
+    return cluster_indices, pathways
 
 
 def collect_pathways_by_clusters(cluster_distribution: NDArray) -> List[List[Pathway]]:

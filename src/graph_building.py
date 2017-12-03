@@ -6,7 +6,7 @@ from pandas import DataFrame
 from src.distances import calculate_distances
 
 Element = Dict[str, Dict[str, str]]
-MAX_EDGE_WEIGHT = 3
+MAX_EDGE_WEIGHT = 2
 
 
 def build_for_cytoscape(sequences: List[str], step_name: str) -> Union[str, None]:
