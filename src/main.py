@@ -1,5 +1,5 @@
 from src.clusters_info import calc_cluster_distribution
-from src.pathways import collect_pathways, collect_unique_pathways, select_favorite_pathway, filter_pathways
+from src.pathways import collect_pathways, select_favorite_pathway, filter_pathways
 from src import graph_building, graph_exporting, evolution
 from src.evolution import ChildGenerator
 
@@ -38,19 +38,14 @@ CACHED = {
 
 
 def main():
-    if CACHE:
-        population_size = CACHED[POPULATION_SIZE_KEY]
-        cluster_distribution = CACHED[DISTRIBUTION_KEY]
-        pathways = CACHED[UNIQUE_PATHWAYS_KEY]
-        favorite_subpathways = CACHED[FAVORITE_SUBPATHWAYS_KEY]
-    else:
-        population_size = POPULATION_SIZE
-        cluster_distribution = calc_cluster_distribution(population_size, random_seed=47)
-        pathways = collect_unique_pathways(cluster_distribution)
-        favorite_pathway = select_favorite_pathway(pathways)
-        favorite_subpathways = evolution.obtain_evolution_subsequences(favorite_pathway)
+    population_size = POPULATION_SIZE
+    cluster_distribution = calc_cluster_distribution(population_size, random_seed=47)
+    pathways_set = set(collect_pathways(cluster_distribution))
+    pathways = list(pathways_set)
+    favorite_pathway = select_favorite_pathway(pathways)
+    favorite_subpathways = evolution.obtain_evolution_subsequences(favorite_pathway)
     step_name = "main"
-    graph_exporting.save_for_gephi(pathways, step_name)
+    graph_exporting.save_for_gephi({0: pathways}, step_name)
     number_of_steps = len(favorite_subpathways)
     intermediate_step_index = number_of_steps // 2
     penultimate_step_index = number_of_steps - 2
@@ -61,12 +56,14 @@ def main():
         while len(new_pathways) < population_size:
             new_pathway = pathway_generator.generate()
             new_pathways.append(new_pathway)
-        unique_new_pathways = list(set(new_pathways))
+        new_pathways_set = set(new_pathways)
+        new_pathways = list(new_pathways_set)
         step_name = "step{}".format(step_index)
+        main_pathways = list(pathways_set - new_pathways_set)
         if step_index == intermediate_step_index:
-            graph_exporting.save_for_gephi(unique_new_pathways, step_name + "intermediate")
+            graph_exporting.save_for_gephi({0: main_pathways, 1: new_pathways}, step_name + "intermediate")
         if step_index == penultimate_step_index:
-            graph_exporting.save_for_gephi(unique_new_pathways, step_name + "penultimate")
+            graph_exporting.save_for_gephi({0: main_pathways, 2: new_pathways}, step_name + "penultimate")
 
 
 if __name__ == '__main__':

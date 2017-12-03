@@ -14,11 +14,6 @@ START_LOCATION = "X"
 FINISH_LOCATION = "Y"
 
 
-def collect_unique_pathways(cluster_distribution: NDArray) -> List[Pathway]:
-    pathways = collect_pathways(cluster_distribution)
-    return list(set(pathways))
-
-
 def collect_pathways(cluster_distribution: NDArray) -> List[Pathway]:
     pathways_by_clusters = collect_pathways_by_clusters(cluster_distribution)
     return [pathway for cluster_pathways in pathways_by_clusters for pathway in cluster_pathways]
