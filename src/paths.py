@@ -1,11 +1,43 @@
 from pathlib import Path
+from typing import Iterator, Iterable
 
 IMPORT_DIR = Path("../import")
 EXPORT_DIR = Path("../export")
 CSV_EXT = "csv"
 JSON_EXT = "json"
 
-EXPORT_DIR.mkdir(exist_ok=True)
+
+# noinspection PyTypeChecker
+def collect_subpaths(path: Path) -> Iterator[Path]:
+    return path.glob('*')
+
+
+class PathCleaner(object):
+
+    def __init__(self, paths: Iterator[Path]) -> None:
+        self.__paths = paths
+
+    @property
+    def paths(self) -> Iterator[Path]:
+        return self.__paths
+
+    def process(self) -> None:
+        for path in self.paths:
+            if path.is_dir():
+                subpaths = collect_subpaths(path)
+                path_cleaner = PathCleaner(subpaths)
+                path_cleaner.process()
+                path.rmdir()
+            else:
+                path.unlink()
+
+
+if EXPORT_DIR.exists():
+    subpaths = collect_subpaths(EXPORT_DIR)
+    cleaner = PathCleaner(subpaths)
+    cleaner.process()
+else:
+    EXPORT_DIR.mkdir(exist_ok=False)
 
 
 def build_input_table_path(file_name: str) -> Path:
