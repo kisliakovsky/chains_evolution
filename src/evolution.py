@@ -9,7 +9,7 @@ Letter = str
 
 def obtain_evolution_subsequences(sequence: str):
     subsequences = strings.obtain_forward_substrings(sequence)
-    return subsequences[2:]
+    return subsequences[2:-1]
 
 
 class ChildGenerator(object):

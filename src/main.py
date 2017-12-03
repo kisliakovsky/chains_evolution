@@ -53,7 +53,7 @@ def main():
     graph_exporting.save_for_gephi(pathways, step_name)
     for step_index, subpathway in enumerate(favorite_subpathways):
         filtered_pathways = filter_pathways(pathways, subpathway)
-        pathway_generator = ChildGenerator(favorite_subpathways)
+        pathway_generator = ChildGenerator(filtered_pathways)
         new_pathways = filtered_pathways[:]
         while len(new_pathways) < population_size:
             new_pathway = pathway_generator.generate()
