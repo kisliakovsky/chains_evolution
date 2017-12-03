@@ -25,9 +25,9 @@ def _save_json(sequences: List[str], file_name: str, step_name: str):
 def _save_csvs(sequences: Dict[int, List[str]], file_name: str, step_name: str, by_clusters: bool):
     if by_clusters:
         supersection_path = paths.create_section("byClusters")
-        section_path = paths.create_subsection(supersection_path, step_name)
     else:
-        section_path = paths.create_section(step_name)
+        supersection_path = paths.create_section("flattened")
+    section_path = paths.create_subsection(supersection_path, step_name)
     node_dataframe, edge_dataframe = graph_building.build_as_dataframes(sequences)
     subsection_path = paths.create_subsection(section_path, file_name)
     node_file_path = paths.build_output_table_path(subsection_path, "nodes".format(file_name))

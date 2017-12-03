@@ -60,6 +60,9 @@ def main():
         main_pathways = list(pathways_set - new_pathways_set)
         if step_index >= intermediate_step_index:
             graph_exporting.save_for_gephi({0: main_pathways, step_index: new_pathways}, step_name)
+            # for occurred_clusters_index in occurred_clusters_indices:
+            #     main_cluster_pathways = list(unique_pathways_by_clusters[occurred_clusters_index] - new_pathways_set)
+
 
 
 if __name__ == '__main__':
