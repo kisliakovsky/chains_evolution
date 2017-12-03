@@ -50,7 +50,6 @@ def main():
         favorite_pathway = select_favorite_pathway(pathways)
         favorite_subpathways = evolution.obtain_evolution_subsequences(favorite_pathway)
     step_name = "main"
-    graph_exporting.save_for_cytoscape(pathways, step_name)
     graph_exporting.save_for_gephi(pathways, step_name)
     for step_index, subpathway in enumerate(favorite_subpathways):
         filtered_pathways = filter_pathways(pathways, subpathway)
@@ -62,7 +61,6 @@ def main():
         unique_new_pathways = list(set(new_pathways))
         print(len(unique_new_pathways))
         step_name = "step{}".format(step_index)
-        graph_exporting.save_for_cytoscape(unique_new_pathways, step_name)
         graph_exporting.save_for_gephi(unique_new_pathways, step_name)
 
 
