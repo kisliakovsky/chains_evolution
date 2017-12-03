@@ -5,8 +5,6 @@ from typing import List
 from src import graph_building
 from src import paths
 
-EXPORT_DIR = Path("../export")
-
 
 def save_for_cytoscape(sequences: List[str], step_name: str):
     _save_json(sequences, "forCytoscape", step_name)
