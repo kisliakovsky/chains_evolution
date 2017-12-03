@@ -51,6 +51,9 @@ def main():
         favorite_subpathways = evolution.obtain_evolution_subsequences(favorite_pathway)
     step_name = "main"
     graph_exporting.save_for_gephi(pathways, step_name)
+    number_of_steps = len(favorite_subpathways)
+    intermediate_step_index = number_of_steps // 2
+    penultimate_step_index = number_of_steps - 2
     for step_index, subpathway in enumerate(favorite_subpathways):
         filtered_pathways = filter_pathways(pathways, subpathway)
         pathway_generator = ChildGenerator(filtered_pathways)
@@ -59,9 +62,11 @@ def main():
             new_pathway = pathway_generator.generate()
             new_pathways.append(new_pathway)
         unique_new_pathways = list(set(new_pathways))
-        print(len(unique_new_pathways))
         step_name = "step{}".format(step_index)
-        graph_exporting.save_for_gephi(unique_new_pathways, step_name)
+        if step_index == intermediate_step_index:
+            graph_exporting.save_for_gephi(unique_new_pathways, step_name + "intermediate")
+        if step_index == penultimate_step_index:
+            graph_exporting.save_for_gephi(unique_new_pathways, step_name + "penultimate")
 
 
 if __name__ == '__main__':
