@@ -47,10 +47,10 @@ def _collect_pathways_by_clusters(cluster_distribution: NDArray) -> List[List[Pa
             for source in current_sources:
                 if source == FINISH_LOCATION:
                     continue
-                transitions_probs = transition_probabilities_by_sources[source]
+                transitions_probabilities = transition_probabilities_by_sources[source]
                 selected_pathways = [pathway for pathway in cluster_pathways if pathway[-1] == source]
                 random = RandomState()
-                target_distribution = random.multinomial(len(selected_pathways), transitions_probs, size=1)[0]
+                target_distribution = random.multinomial(len(selected_pathways), transitions_probabilities, size=1)[0]
                 for source_index, target_size in enumerate(target_distribution):
                     for _ in range(target_size):
                         pathway = selected_pathways.pop()
