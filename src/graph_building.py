@@ -50,7 +50,7 @@ def _create_edge(source: str, target: str, weight: int) -> Element:
     }
 
 
-def build_as_dataframes(sequences_by_classes: Dict[int, List[str]]) -> Tuple[DataFrame, DataFrame]:
+def build_as_dataframes(sequences_by_classes: Dict[str, List[str]]) -> Tuple[DataFrame, DataFrame]:
     all_sequences = []
     all_classes = []
     for clazz, sequences in sequences_by_classes.items():

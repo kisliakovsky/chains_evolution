@@ -5,6 +5,7 @@ IMPORT_DIR = Path("../import")
 EXPORT_DIR = Path("../export")
 CSV_EXT = "csv"
 JSON_EXT = "json"
+TXT_EXT = "txt"
 
 
 # noinspection PyTypeChecker
@@ -42,6 +43,10 @@ else:
 
 def build_input_table_path(file_name: str) -> Path:
     return IMPORT_DIR.joinpath(file_name).with_suffix(".{}".format(CSV_EXT)).resolve()
+
+
+def build_input_txt_path(file_name: str) -> Path:
+    return IMPORT_DIR.joinpath(file_name).with_suffix(".{}".format(TXT_EXT)).resolve()
 
 
 def build_output_graph_path(output_path: Path, file_name: str) -> Path:

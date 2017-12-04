@@ -10,7 +10,7 @@ def save_for_cytoscape(sequences: List[str], step_name: str):
     _save_json(sequences, "forCytoscape", step_name)
 
 
-def save_for_gephi(sequences: Dict[int, List[str]], step_name: str, by_clusters=False):
+def save_for_gephi(sequences: Dict[str, List[str]], step_name: str, by_clusters=False):
     _save_csvs(sequences, "forGephi", step_name, by_clusters)
 
 
@@ -22,7 +22,7 @@ def _save_json(sequences: List[str], file_name: str, step_name: str):
         json.dump(dictionary, file,  indent=4, separators=(',', ': '))
 
 
-def _save_csvs(sequences: Dict[int, List[str]], file_name: str, step_name: str, by_clusters: bool):
+def _save_csvs(sequences: Dict[str, List[str]], file_name: str, step_name: str, by_clusters: bool):
     if by_clusters:
         supersection_path = paths.create_section("byClusters")
     else:
