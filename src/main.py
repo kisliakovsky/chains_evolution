@@ -29,6 +29,7 @@ POPULATION_SIZE = 3500
 def main():
     population_size = POPULATION_SIZE
     cluster_distribution = calc_cluster_distribution(population_size, random_seed=47)
+    number_of_clusters = len(cluster_distribution)
     pathways_by_clusters = collect_all_pathways_by_clusters(cluster_distribution)
     unique_pathways_by_clusters = remove_repetitive_pathways_by_clusters(pathways_by_clusters)
     pathways_set = flatten_all_pathways_by_clusters(unique_pathways_by_clusters)
@@ -62,8 +63,12 @@ def main():
         main_pathways = list(pathways_set - new_pathways_set)
         if step_index >= intermediate_step_index:
             graph_exporting.save_for_gephi({0: main_pathways, step_index: new_pathways}, step_name)
-            # for occurred_clusters_index in occurred_clusters_indices:
-            #     main_cluster_pathways = list(unique_pathways_by_clusters[occurred_clusters_index] - new_pathways_set)
+            export_cluster_dict = {}
+            for occurred_clusters_index in occurred_clusters_indices:
+                export_cluster_dict[occurred_clusters_index] = list(unique_pathways_by_clusters[occurred_clusters_index] - new_pathways_set)
+                export_cluster_dict[number_of_clusters + step_index] = new_pathways
+            graph_exporting.save_for_gephi(export_cluster_dict, step_name, by_clusters=True)
+
 
 
 if __name__ == '__main__':
