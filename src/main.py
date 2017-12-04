@@ -53,6 +53,8 @@ def main():
         new_pathways = filtered_pathways[:]
         while len(new_pathways) < population_size:
             new_pathway = pathway_generator.generate()
+            while new_pathway is None:
+                new_pathway = pathway_generator.generate()
             new_pathways.append(new_pathway)
         new_pathways_set = set(new_pathways)
         new_pathways = list(new_pathways_set)
@@ -62,7 +64,6 @@ def main():
             graph_exporting.save_for_gephi({0: main_pathways, step_index: new_pathways}, step_name)
             # for occurred_clusters_index in occurred_clusters_indices:
             #     main_cluster_pathways = list(unique_pathways_by_clusters[occurred_clusters_index] - new_pathways_set)
-
 
 
 if __name__ == '__main__':

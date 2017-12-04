@@ -5,7 +5,7 @@ import itertools
 T = TypeVar('T')
 
 
-def count_repetitions(sorted_items: List[T]) -> Tuple[List[int], List[int]]:
+def count_repetitions(sorted_items: List[T]) -> Tuple[List[T], List[int]]:
     keys = []
     counts = []
     for key, group in itertools.groupby(sorted_items):
