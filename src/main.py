@@ -1,72 +1,81 @@
-from src.clusters_info import calc_cluster_distribution
-from src.pathways import collect_pathways, collect_unique_pathways, select_favorite_pathway, filter_pathways
-from src import graph_building, graph_exporting, evolution
+import operator
+
+from src.clusters_info import calc_cluster_distribution, obtain_actual_pathways_by_clusters
+from src.pathways_generating import collect_all_pathways_by_clusters
+from src.pathways_processing import remove_repetitive_pathways_by_clusters
+from src.pathways_processing import flatten_all_pathways_by_clusters
+from src.pathways_processing import select_favorite_pathway
+from src.pathways_processing import filter_pathways, filter_pathways_by_clusters
+from src import graph_exporting, evolution, paths
 from src.evolution import ChildGenerator
 
+import logging
+
+MESSAGE_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
+DATE_TIME_FORMAT = "%I:%M:%S %p"
+
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+formatter = logging.Formatter(fmt=MESSAGE_FORMAT, datefmt=DATE_TIME_FORMAT)
+console_handler.setFormatter(formatter)
+logger = logging.getLogger('main_logger')
+logger.setLevel(logging.INFO)
+logger.addHandler(console_handler)
+
+
 POPULATION_SIZE = 3500
-
-POPULATION_SIZE_KEY = "population_size"
-DISTRIBUTION_KEY = "distribution"
-PATHWAYS_KEY = "pathways"
-UNIQUE_PATHWAYS_KEY = "unique_pathways"
-FAVORITE_PATHWAY_KEY = "favorite_pathway"
-FAVORITE_SUBPATHWAYS_KEY = "favorite_subpathways"
-
-CACHE = False
-CACHED = {
-    POPULATION_SIZE_KEY: 100,
-    DISTRIBUTION_KEY: [1, 34, 14, 4, 19, 8, 2, 6, 6, 6],
-    PATHWAYS_KEY: ['XAEFEDY', 'XANFEDEY', 'XAFNIFEY', 'XAFNFEDY', 'XAFNFEDY', 'XAFNFEDY', 'XAFNFEY', 'XAFNFEY',
-                   'XAFNFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY',
-                   'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY',
-                   'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY', 'XAFIFEY',
-                   'XANFIDY', 'XAIY', 'XAFEDY', 'XAFEY', 'XAFEY', 'XAFEY', 'XAFEY', 'XAFDY', 'XAFDY', 'XAFY', 'XAFY',
-                   'XAFY', 'XAFY', 'XAFY', 'XAFNIFEDY', 'XAFNIFEDY', 'XAFNIFEDY', 'XAFNFNIFEIFEY', 'XAFNIFEDY',
-                   'XAFNIFEDY', 'XAFNIFEY', 'XAFNIFEY', 'XAFNIFEY', 'XAFNIFEY', 'XAFNIFEY', 'XAFNIFEY', 'XAFNIFEY',
-                   'XAFNIFEY', 'XAFNIFEY', 'XAFNIFEY', 'XAFNIFEY', 'XAFNIFEY', 'XAFNIFEY', 'XAFNIFEY', 'XAFNIFEY',
-                   'XAFNIFEY', 'XAFNFIFEY', 'XANIFEFDY', 'XAIEDY', 'XAFIFIFY', 'XAFIFEIFEDY', 'XAFIFEDY', 'XAFIFEDY',
-                   'XAFIFEDY', 'XAFEDY', 'XAFNFEFIFEY', 'XAEDY', 'XAIFEY', 'XAIFEY', 'XAIEY', 'XAFIFEY', 'XAFIEY',
-                   'XAFIDY', 'XANFDY', 'XAFNIFY', 'XAFNIFY', 'XAFNIFY', 'XAFNIEY', 'XAFEIEY', 'XAFNIFEDEY',
-                   'XAFNIFEDEY', 'XAFNIFEDEY', 'XAFNIFEDEY', 'XAFNIFEDEY', 'XAFNFEDEY'],
-    UNIQUE_PATHWAYS_KEY: ['XANFIDY', 'XAFNIFY', 'XAFNIFEDEY', 'XANFDY', 'XAFEDY', 'XAFNIFEDY', 'XAFNFEDY', 'XAIEDY',
-                          'XAIEY', 'XAEDY', 'XAFEY', 'XANFEDEY', 'XAIFEY', 'XAFY', 'XAFIFEIFEDY', 'XAFNFNIFEIFEY',
-                          'XAEFEDY', 'XANIFEFDY', 'XAIY', 'XAFNFEFIFEY', 'XAFNFEDEY', 'XAFIFEDY', 'XAFDY', 'XAFIDY',
-                          'XAFIFIFY', 'XAFNIEY', 'XAFIEY', 'XAFNFEY', 'XAFNFIFEY', 'XAFEIEY', 'XAFNIFEY', 'XAFIFEY'],
-    FAVORITE_PATHWAY_KEY: 'XAEFEDY',
-    FAVORITE_SUBPATHWAYS_KEY: ['XAE', 'XAEF', 'XAEFE', 'XAEFED', 'XAEFEDY']
-}
+SYNTHETIC_PATHWAYS_KEY = "main"
+FAVORITE_PATHWAY_KEY = "favorite"
 
 
 def main():
-    if CACHE:
-        population_size = CACHED[POPULATION_SIZE_KEY]
-        cluster_distribution = CACHED[DISTRIBUTION_KEY]
-        pathways = CACHED[UNIQUE_PATHWAYS_KEY]
-        favorite_subpathways = CACHED[FAVORITE_SUBPATHWAYS_KEY]
-    else:
-        population_size = POPULATION_SIZE
-        cluster_distribution = calc_cluster_distribution(population_size, random_seed=47)
-        pathways = collect_unique_pathways(cluster_distribution)
-        favorite_pathway = select_favorite_pathway(pathways)
-        favorite_subpathways = evolution.obtain_evolution_subsequences(favorite_pathway)
+    actual_pathways_by_clusters = obtain_actual_pathways_by_clusters()
+    number_of_clusters = len(actual_pathways_by_clusters)
+    unique_actual_pathways_by_clusters = remove_repetitive_pathways_by_clusters(actual_pathways_by_clusters)
+    actual_pathways_set = flatten_all_pathways_by_clusters(unique_actual_pathways_by_clusters)
+    actual_pathways = list(actual_pathways_set)
+    population_size = POPULATION_SIZE
+    cluster_distribution = calc_cluster_distribution(population_size, random_seed=47)
+    synthetic_pathways_by_clusters = collect_all_pathways_by_clusters(cluster_distribution)
+    unique_synthetic_pathways_by_clusters = remove_repetitive_pathways_by_clusters(synthetic_pathways_by_clusters)
+    synthetic_pathways_set = flatten_all_pathways_by_clusters(unique_synthetic_pathways_by_clusters)
+    synthetic_pathways = list(synthetic_pathways_set)
     step_name = "main"
-    graph_exporting.save_for_gephi(pathways, step_name)
+    favorite_pathway = select_favorite_pathway(synthetic_pathways)
+    favorite_pathway_set = {favorite_pathway}
+    synthetic_pathways_but_favorite = list(synthetic_pathways_set - favorite_pathway_set)
+    graph_exporting.save_for_gephi({SYNTHETIC_PATHWAYS_KEY: synthetic_pathways_but_favorite, FAVORITE_PATHWAY_KEY: [favorite_pathway]}, step_name)
+    unique_pathways_by_clusters_dict = {i: cluster_pathways for i, cluster_pathways in enumerate(unique_synthetic_pathways_by_clusters)}
+    # graph_exporting.save_for_gephi(unique_pathways_by_clusters_dict, step_name, by_clusters=True)
+    favorite_subpathways = evolution.obtain_evolution_subsequences(favorite_pathway)
     number_of_steps = len(favorite_subpathways)
     intermediate_step_index = number_of_steps // 2
-    penultimate_step_index = number_of_steps - 2
+    last_step_index = number_of_steps - 1
     for step_index, subpathway in enumerate(favorite_subpathways):
-        filtered_pathways = filter_pathways(pathways, subpathway)
+        logger.info("Step {}/{}: {}".format(step_index, last_step_index, subpathway))
+        filtered_pathways = filter_pathways(synthetic_pathways, subpathway)
+        filtered_pathways_by_clusters = filter_pathways_by_clusters(unique_synthetic_pathways_by_clusters, subpathway)
+        occurred_clusters_indices = [i for i, ps in enumerate(filtered_pathways_by_clusters) if len(ps) > 0]
+        logger.info("Occurs in clusters: {}".format(str(occurred_clusters_indices)))
         pathway_generator = ChildGenerator(filtered_pathways)
         new_pathways = filtered_pathways[:]
         while len(new_pathways) < population_size:
             new_pathway = pathway_generator.generate()
+            while new_pathway is None:
+                new_pathway = pathway_generator.generate()
             new_pathways.append(new_pathway)
-        unique_new_pathways = list(set(new_pathways))
+        new_pathways_set = set(new_pathways)
+        new_pathways = list(new_pathways_set)
         step_name = "step{}".format(step_index)
-        if step_index == intermediate_step_index:
-            graph_exporting.save_for_gephi(unique_new_pathways, step_name + "intermediate")
-        if step_index == penultimate_step_index:
-            graph_exporting.save_for_gephi(unique_new_pathways, step_name + "penultimate")
+        step_pathways = list((new_pathways_set - favorite_pathway_set) - synthetic_pathways_set)
+        synthetic_pathways_but_favorite = list(synthetic_pathways_set - favorite_pathway_set)
+        if step_index >= 0:
+            graph_exporting.save_for_gephi({SYNTHETIC_PATHWAYS_KEY: synthetic_pathways_but_favorite, step_name: step_pathways, FAVORITE_PATHWAY_KEY: [favorite_pathway]}, step_name)
+            export_cluster_dict = {}
+            for occurred_clusters_index in occurred_clusters_indices:
+                export_cluster_dict[occurred_clusters_index] = list(unique_synthetic_pathways_by_clusters[occurred_clusters_index] - new_pathways_set)
+                export_cluster_dict[number_of_clusters + step_index] = new_pathways
+            # graph_exporting.save_for_gephi(export_cluster_dict, step_name, by_clusters=True)
 
 
 if __name__ == '__main__':

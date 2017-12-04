@@ -6,7 +6,7 @@ from pandas import DataFrame
 from src.distances import calculate_distances
 
 Element = Dict[str, Dict[str, str]]
-MAX_EDGE_WEIGHT = 3
+MAX_EDGE_WEIGHT = 4
 
 
 def build_for_cytoscape(sequences: List[str], step_name: str) -> Union[str, None]:
@@ -50,22 +50,28 @@ def _create_edge(source: str, target: str, weight: int) -> Element:
     }
 
 
-def build_as_dataframes(sequences: List[str], step_name: str) -> Tuple[DataFrame, DataFrame]:
-    nodes = _create_node_dataframe(sequences, step_name)
-    edges = _create_edge_dataframe(sequences, step_name)
+def build_as_dataframes(sequences_by_classes: Dict[str, List[str]]) -> Tuple[DataFrame, DataFrame]:
+    all_sequences = []
+    all_classes = []
+    for clazz, sequences in sequences_by_classes.items():
+        classes = [str(clazz) for _ in sequences]
+        all_classes += classes
+        all_sequences += sequences
+    nodes = _create_node_dataframe(all_sequences, all_classes)
+    edges = _create_edge_dataframe(all_sequences)
     return nodes, edges
 
 
-def _create_node_dataframe(sequences: List[str], step_name: str):
+def _create_node_dataframe(sequences: List[str], classes: List[str]):
     nodes = {
         "Id": sequences,
         "Label": sequences,
-        "Class": [step_name for _ in sequences]
+        "Class": classes
     }
     return DataFrame(data=nodes)
 
 
-def _create_edge_dataframe(sequences: List[str], step_name: str):
+def _create_edge_dataframe(sequences: Dict[int, List[str]]):
     sources = []
     targets = []
     types = []
@@ -88,8 +94,7 @@ def _create_edge_dataframe(sequences: List[str], step_name: str):
         "Type": types,
         "Id": ids,
         "Label": weights,
-        "Weight": weights,
-        "Class": step_name
+        "Weight": weights
     }
     return DataFrame(data=edges)
 
