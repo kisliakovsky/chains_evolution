@@ -24,6 +24,8 @@ logger.addHandler(console_handler)
 
 
 POPULATION_SIZE = 3500
+MAIN_KEY = 100
+FAVORITE_PATHWAY_KEY = 1000
 
 
 def main():
@@ -38,7 +40,7 @@ def main():
     favorite_pathway = select_favorite_pathway(pathways)
     favorite_pathway_set = {favorite_pathway}
     main_pathways = list(pathways_set - favorite_pathway_set)
-    graph_exporting.save_for_gephi({0: main_pathways, 100: [favorite_pathway]}, step_name)
+    graph_exporting.save_for_gephi({MAIN_KEY: main_pathways, FAVORITE_PATHWAY_KEY: [favorite_pathway]}, step_name)
     unique_pathways_by_clusters_dict = {i: cluster_pathways for i, cluster_pathways in enumerate(unique_pathways_by_clusters)}
     # graph_exporting.save_for_gephi(unique_pathways_by_clusters_dict, step_name, by_clusters=True)
     favorite_subpathways = evolution.obtain_evolution_subsequences(favorite_pathway)
@@ -61,10 +63,10 @@ def main():
         new_pathways_set = set(new_pathways)
         new_pathways = list(new_pathways_set)
         step_name = "step{}".format(step_index)
-        main_pathways = list((pathways_set - favorite_pathway_set) - new_pathways_set)
-        step_pathways = list(new_pathways_set - favorite_pathway_set)
+        step_pathways = list((new_pathways_set - favorite_pathway_set) - pathways_set)
+        main_pathways = list(pathways_set - favorite_pathway_set)
         if step_index >= 0:
-            graph_exporting.save_for_gephi({0: main_pathways, step_index: step_pathways, 100: [favorite_pathway]}, step_name)
+            graph_exporting.save_for_gephi({MAIN_KEY: main_pathways, step_index: step_pathways, FAVORITE_PATHWAY_KEY: [favorite_pathway]}, step_name)
             export_cluster_dict = {}
             for occurred_clusters_index in occurred_clusters_indices:
                 export_cluster_dict[occurred_clusters_index] = list(unique_pathways_by_clusters[occurred_clusters_index] - new_pathways_set)
