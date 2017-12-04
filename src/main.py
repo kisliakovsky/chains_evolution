@@ -35,11 +35,12 @@ def main():
     pathways_set = flatten_all_pathways_by_clusters(unique_pathways_by_clusters)
     pathways = list(pathways_set)
     step_name = "main"
-    graph_exporting.save_for_gephi({0: pathways}, step_name)
-    unique_pathways_by_clusters_dict = {i: cluster_pathways for i, cluster_pathways in enumerate(unique_pathways_by_clusters)}
-    graph_exporting.save_for_gephi({0: pathways}, step_name)
-    graph_exporting.save_for_gephi(unique_pathways_by_clusters_dict, step_name, by_clusters=True)
     favorite_pathway = select_favorite_pathway(pathways)
+    favorite_pathway_set = {favorite_pathway}
+    main_pathways = list(pathways_set - favorite_pathway_set)
+    graph_exporting.save_for_gephi({0: main_pathways, 100: [favorite_pathway]}, step_name)
+    unique_pathways_by_clusters_dict = {i: cluster_pathways for i, cluster_pathways in enumerate(unique_pathways_by_clusters)}
+    # graph_exporting.save_for_gephi(unique_pathways_by_clusters_dict, step_name, by_clusters=True)
     favorite_subpathways = evolution.obtain_evolution_subsequences(favorite_pathway)
     number_of_steps = len(favorite_subpathways)
     intermediate_step_index = number_of_steps // 2
@@ -60,14 +61,15 @@ def main():
         new_pathways_set = set(new_pathways)
         new_pathways = list(new_pathways_set)
         step_name = "step{}".format(step_index)
-        main_pathways = list(pathways_set - new_pathways_set)
-        if step_index >= intermediate_step_index:
-            graph_exporting.save_for_gephi({0: main_pathways, step_index: new_pathways}, step_name)
+        main_pathways = list((pathways_set - favorite_pathway_set) - new_pathways_set)
+        step_pathways = list(new_pathways_set - favorite_pathway_set)
+        if step_index >= 0:
+            graph_exporting.save_for_gephi({0: main_pathways, step_index: step_pathways, 100: [favorite_pathway]}, step_name)
             export_cluster_dict = {}
             for occurred_clusters_index in occurred_clusters_indices:
                 export_cluster_dict[occurred_clusters_index] = list(unique_pathways_by_clusters[occurred_clusters_index] - new_pathways_set)
                 export_cluster_dict[number_of_clusters + step_index] = new_pathways
-            graph_exporting.save_for_gephi(export_cluster_dict, step_name, by_clusters=True)
+            # graph_exporting.save_for_gephi(export_cluster_dict, step_name, by_clusters=True)
 
 
 
