@@ -6,7 +6,7 @@ from pandas import DataFrame
 from src.distances import calculate_distances
 
 Element = Dict[str, Dict[str, str]]
-MAX_EDGE_WEIGHT = 4
+MAX_EDGE_WEIGHT = 2
 
 
 def build_for_cytoscape(sequences: List[str], step_name: str) -> Union[str, None]:
@@ -52,13 +52,16 @@ def _create_edge(source: str, target: str, weight: int) -> Element:
 
 def build_as_dataframes(sequences_by_classes: Dict[str, List[str]]) -> Tuple[DataFrame, DataFrame]:
     all_sequences = []
+    all_but_deleted_sequences = []
     all_classes = []
     for clazz, sequences in sequences_by_classes.items():
         classes = [str(clazz) for _ in sequences]
         all_classes += classes
         all_sequences += sequences
+        if clazz != "deleted":
+            all_but_deleted_sequences += sequences
     nodes = _create_node_dataframe(all_sequences, all_classes)
-    edges = _create_edge_dataframe(all_sequences)
+    edges = _create_edge_dataframe(all_but_deleted_sequences)
     return nodes, edges
 
 
@@ -71,7 +74,7 @@ def _create_node_dataframe(sequences: List[str], classes: List[str]):
     return DataFrame(data=nodes)
 
 
-def _create_edge_dataframe(sequences: Dict[int, List[str]]):
+def _create_edge_dataframe(sequences: List[str]):
     sources = []
     targets = []
     types = []
@@ -106,7 +109,7 @@ def _map_edge_components(sequences: List[str], handler: Callable[[str, str, int]
     for i in range(1, number_of_rows):
         for j in range(i + 1, number_of_columns):
             weight = int(distances[i][j])
-            if 0 < weight < MAX_EDGE_WEIGHT:
+            if 0 < weight <= MAX_EDGE_WEIGHT:
                 source = sequences[i]
                 target = sequences[j]
                 handler(source, target, weight)

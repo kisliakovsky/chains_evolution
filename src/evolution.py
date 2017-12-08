@@ -1,4 +1,4 @@
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Set, Iterable
 
 from numpy.random import RandomState
 
@@ -14,7 +14,7 @@ def obtain_evolution_subsequences(sequence: str):
 
 class ChildGenerator(object):
 
-    def __init__(self, parents: List[str]):
+    def __init__(self, parents: Iterable[str]):
         self.__unique_genes = [parent[1:-1] for parent in parents]
         self.__gene_lengths = self.__get_gene_lengths()
         self.__unique_lengths, self.__length_repetitions = self.__get_length_repetitions()

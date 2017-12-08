@@ -22,60 +22,90 @@ logger = logging.getLogger('main_logger')
 logger.setLevel(logging.INFO)
 logger.addHandler(console_handler)
 
-
-POPULATION_SIZE = 3500
-SYNTHETIC_PATHWAYS_KEY = "main"
+EXPECTED_NUMBER_OF_SYNTHETIC_PATHWAYS = 100
+START_POPULATION_SIZE = 939
+ACTUAL_PATHWAYS_KEY = "actual"
 FAVORITE_PATHWAY_KEY = "favorite"
+
+SYNTHETIC_PATHWAYS_KEY = "synthetic"
+# subclasses
+REMAINED_PATHWAYS_KEY = "remained"
+NEW_PATHWAYS_KEY = "new"
+DELETED_PATHWAYS_KEY = "deleted"
 
 
 def main():
     actual_pathways_by_clusters = obtain_actual_pathways_by_clusters()
-    number_of_clusters = len(actual_pathways_by_clusters)
     unique_actual_pathways_by_clusters = remove_repetitive_pathways_by_clusters(actual_pathways_by_clusters)
     actual_pathways_set = flatten_all_pathways_by_clusters(unique_actual_pathways_by_clusters)
     actual_pathways = list(actual_pathways_set)
-    population_size = POPULATION_SIZE
-    cluster_distribution = calc_cluster_distribution(population_size, random_seed=47)
-    synthetic_pathways_by_clusters = collect_all_pathways_by_clusters(cluster_distribution)
-    unique_synthetic_pathways_by_clusters = remove_repetitive_pathways_by_clusters(synthetic_pathways_by_clusters)
-    synthetic_pathways_set = flatten_all_pathways_by_clusters(unique_synthetic_pathways_by_clusters)
+    graph_exporting.save_for_kirill({ACTUAL_PATHWAYS_KEY: actual_pathways}, "actual_data_graph")
+    synthetic_pathways_set = obtain_synthetic_pathways_set()
     synthetic_pathways = list(synthetic_pathways_set)
-    step_name = "main"
-    favorite_pathway = select_favorite_pathway(synthetic_pathways)
+    favorite_pathway = select_favorite_pathway(actual_pathways, synthetic_pathways)
     favorite_pathway_set = {favorite_pathway}
-    synthetic_pathways_but_favorite = list(synthetic_pathways_set - favorite_pathway_set)
-    graph_exporting.save_for_gephi({SYNTHETIC_PATHWAYS_KEY: synthetic_pathways_but_favorite, FAVORITE_PATHWAY_KEY: [favorite_pathway]}, step_name)
-    unique_pathways_by_clusters_dict = {i: cluster_pathways for i, cluster_pathways in enumerate(unique_synthetic_pathways_by_clusters)}
-    # graph_exporting.save_for_gephi(unique_pathways_by_clusters_dict, step_name, by_clusters=True)
+    actual_pathways_but_favorite = list(actual_pathways_set - favorite_pathway_set)
+    synthetic_pathways_but_actual_and_favorite = list(
+        synthetic_pathways_set - actual_pathways_set - favorite_pathway_set)
+    graph_exporting.save_for_kirill({ACTUAL_PATHWAYS_KEY: actual_pathways_but_favorite,
+                                     SYNTHETIC_PATHWAYS_KEY: synthetic_pathways_but_actual_and_favorite,
+                                     FAVORITE_PATHWAY_KEY: [favorite_pathway]}, "actual_and_synthetic_data_before")
     favorite_subpathways = evolution.obtain_evolution_subsequences(favorite_pathway)
     number_of_steps = len(favorite_subpathways)
-    intermediate_step_index = number_of_steps // 2
     last_step_index = number_of_steps - 1
     for step_index, subpathway in enumerate(favorite_subpathways):
         logger.info("Step {}/{}: {}".format(step_index, last_step_index, subpathway))
-        filtered_pathways = filter_pathways(synthetic_pathways, subpathway)
-        filtered_pathways_by_clusters = filter_pathways_by_clusters(unique_synthetic_pathways_by_clusters, subpathway)
-        occurred_clusters_indices = [i for i, ps in enumerate(filtered_pathways_by_clusters) if len(ps) > 0]
-        logger.info("Occurs in clusters: {}".format(str(occurred_clusters_indices)))
-        pathway_generator = ChildGenerator(filtered_pathways)
-        new_pathways = filtered_pathways[:]
-        while len(new_pathways) < population_size:
-            new_pathway = pathway_generator.generate()
-            while new_pathway is None:
-                new_pathway = pathway_generator.generate()
-            new_pathways.append(new_pathway)
-        new_pathways_set = set(new_pathways)
+        remained_pathways_set = filter_pathways(synthetic_pathways, subpathway, last_step_index == step_index)
+        remained_pathways = list(remained_pathways_set)
+        deleted_pathways_set = synthetic_pathways_set - remained_pathways_set
+        deleted_pathways = list(deleted_pathways_set)
+        new_pathways_set = set(generate_new_pathways(remained_pathways_set, len(synthetic_pathways_set)))
         new_pathways = list(new_pathways_set)
-        step_name = "step{}".format(step_index)
-        step_pathways = list((new_pathways_set - favorite_pathway_set) - synthetic_pathways_set)
-        synthetic_pathways_but_favorite = list(synthetic_pathways_set - favorite_pathway_set)
-        if step_index >= 0:
-            graph_exporting.save_for_gephi({SYNTHETIC_PATHWAYS_KEY: synthetic_pathways_but_favorite, step_name: step_pathways, FAVORITE_PATHWAY_KEY: [favorite_pathway]}, step_name)
-            export_cluster_dict = {}
-            for occurred_clusters_index in occurred_clusters_indices:
-                export_cluster_dict[occurred_clusters_index] = list(unique_synthetic_pathways_by_clusters[occurred_clusters_index] - new_pathways_set)
-                export_cluster_dict[number_of_clusters + step_index] = new_pathways
-            # graph_exporting.save_for_gephi(export_cluster_dict, step_name, by_clusters=True)
+        remained_pathways_but_actual_and_favorite = list(remained_pathways_set - actual_pathways_set - favorite_pathway_set)
+        new_pathways_but_actual_and_remained_and_favorite = list(new_pathways_set - actual_pathways_set - remained_pathways_set - favorite_pathway_set)
+        deleted_pathways_but_actual = list(deleted_pathways_set - actual_pathways_set)
+        step_name = "actual_and_synthetic_data_after_step{}".format(step_index)
+        graph_exporting.save_for_kirill({ACTUAL_PATHWAYS_KEY: actual_pathways_but_favorite,
+                                         REMAINED_PATHWAYS_KEY: remained_pathways_but_actual_and_favorite,
+                                         NEW_PATHWAYS_KEY: new_pathways_but_actual_and_remained_and_favorite,
+                                         DELETED_PATHWAYS_KEY: deleted_pathways_but_actual,
+                                         FAVORITE_PATHWAY_KEY: [favorite_pathway]}, step_name)
+        synthetic_pathways_set = remained_pathways_set | new_pathways_set
+        synthetic_pathways = list(synthetic_pathways_set)
+
+
+def obtain_actual_pathways_set():
+    actual_pathways_by_clusters = obtain_actual_pathways_by_clusters()
+    unique_actual_pathways_by_clusters = remove_repetitive_pathways_by_clusters(actual_pathways_by_clusters)
+    return flatten_all_pathways_by_clusters(unique_actual_pathways_by_clusters)
+
+
+def obtain_synthetic_pathways_set():
+    population_size = START_POPULATION_SIZE
+    synthetic_pathways_set = {}
+    actual_number_of_synthetic_pathways = len(synthetic_pathways_set)
+    while actual_number_of_synthetic_pathways < EXPECTED_NUMBER_OF_SYNTHETIC_PATHWAYS:
+        print("Population size: {}; Number of synthetic pathways: {}".format(population_size,
+                                                                             actual_number_of_synthetic_pathways))
+        cluster_distribution = calc_cluster_distribution(population_size, random_seed=47)
+        synthetic_pathways_by_clusters = collect_all_pathways_by_clusters(cluster_distribution)
+        unique_synthetic_pathways_by_clusters = remove_repetitive_pathways_by_clusters(synthetic_pathways_by_clusters)
+        synthetic_pathways_set = flatten_all_pathways_by_clusters(unique_synthetic_pathways_by_clusters)
+        actual_number_of_synthetic_pathways = len(synthetic_pathways_set)
+        population_size += 1
+    return synthetic_pathways_set
+
+
+def generate_new_pathways(remained_pathways_set, number):
+    new_pathways = []
+    if len(remained_pathways_set) != 0:
+        pathway_generator = ChildGenerator(remained_pathways_set)
+        while (len(new_pathways) + len(remained_pathways_set)) < number:
+            new_synthetic_pathway = pathway_generator.generate()
+            while new_synthetic_pathway is None:
+                new_synthetic_pathway = pathway_generator.generate()
+            new_pathways.append(new_synthetic_pathway)
+    return new_pathways
 
 
 if __name__ == '__main__':
