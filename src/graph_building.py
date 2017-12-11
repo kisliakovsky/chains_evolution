@@ -6,7 +6,7 @@ from pandas import DataFrame
 from src.distances import calculate_distances
 
 Element = Dict[str, Dict[str, str]]
-MAX_EDGE_WEIGHT = 2
+MAX_EDGE_WEIGHT = 3
 
 
 def build_for_cytoscape(sequences: List[str], step_name: str) -> Union[str, None]:
@@ -103,13 +103,14 @@ def _create_edge_dataframe(sequences: List[str]):
 
 
 def _map_edge_components(sequences: List[str], handler: Callable[[str, str, int], None]):
-    distances = calculate_distances(sequences)
-    number_of_rows = len(distances)
-    number_of_columns = len(distances[0])
-    for i in range(1, number_of_rows):
-        for j in range(i + 1, number_of_columns):
-            weight = int(distances[i][j])
-            if 0 < weight <= MAX_EDGE_WEIGHT:
-                source = sequences[i]
-                target = sequences[j]
-                handler(source, target, weight)
+    if len(sequences) > 1:
+        distances = calculate_distances(sequences)
+        number_of_rows = len(distances)
+        number_of_columns = len(distances[0])
+        for i in range(1, number_of_rows):
+            for j in range(i + 1, number_of_columns):
+                weight = int(distances[i][j])
+                if 0 < weight <= MAX_EDGE_WEIGHT:
+                    source = sequences[i]
+                    target = sequences[j]
+                    handler(source, target, weight)

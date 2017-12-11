@@ -39,7 +39,7 @@ def main():
     unique_actual_pathways_by_clusters = remove_repetitive_pathways_by_clusters(actual_pathways_by_clusters)
     actual_pathways_set = flatten_all_pathways_by_clusters(unique_actual_pathways_by_clusters)
     actual_pathways = list(actual_pathways_set)
-    graph_exporting.save_for_kirill({ACTUAL_PATHWAYS_KEY: actual_pathways}, "actual_data_graph")
+    # graph_exporting.save_for_kirill({ACTUAL_PATHWAYS_KEY: actual_pathways}, "actual_data_graph")
     synthetic_pathways_set = obtain_synthetic_pathways_set()
     synthetic_pathways = list(synthetic_pathways_set)
     favorite_pathway = select_favorite_pathway(actual_pathways, synthetic_pathways)
@@ -47,9 +47,10 @@ def main():
     actual_pathways_but_favorite = list(actual_pathways_set - favorite_pathway_set)
     synthetic_pathways_but_actual_and_favorite = list(
         synthetic_pathways_set - actual_pathways_set - favorite_pathway_set)
-    graph_exporting.save_for_kirill({ACTUAL_PATHWAYS_KEY: actual_pathways_but_favorite,
+    graph_exporting.save_for_kirill({
                                      SYNTHETIC_PATHWAYS_KEY: synthetic_pathways_but_actual_and_favorite,
-                                     FAVORITE_PATHWAY_KEY: [favorite_pathway]}, "actual_and_synthetic_data_before")
+                                     FAVORITE_PATHWAY_KEY: [favorite_pathway]
+                                     }, "synthetic_data_before")
     favorite_subpathways = evolution.obtain_evolution_subsequences(favorite_pathway)
     number_of_steps = len(favorite_subpathways)
     last_step_index = number_of_steps - 1
@@ -64,11 +65,9 @@ def main():
         remained_pathways_but_actual_and_favorite = list(remained_pathways_set - actual_pathways_set - favorite_pathway_set)
         new_pathways_but_actual_and_remained_and_favorite = list(new_pathways_set - actual_pathways_set - remained_pathways_set - favorite_pathway_set)
         deleted_pathways_but_actual = list(deleted_pathways_set - actual_pathways_set)
-        step_name = "actual_and_synthetic_data_after_step{}".format(step_index)
-        graph_exporting.save_for_kirill({ACTUAL_PATHWAYS_KEY: actual_pathways_but_favorite,
-                                         REMAINED_PATHWAYS_KEY: remained_pathways_but_actual_and_favorite,
-                                         NEW_PATHWAYS_KEY: new_pathways_but_actual_and_remained_and_favorite,
-                                         DELETED_PATHWAYS_KEY: deleted_pathways_but_actual,
+        step_name = "synthetic_data_after_step{}".format(step_index)
+        graph_exporting.save_for_kirill({
+                                         SYNTHETIC_PATHWAYS_KEY: remained_pathways_but_actual_and_favorite + new_pathways_but_actual_and_remained_and_favorite,
                                          FAVORITE_PATHWAY_KEY: [favorite_pathway]}, step_name)
         synthetic_pathways_set = remained_pathways_set | new_pathways_set
         synthetic_pathways = list(synthetic_pathways_set)
