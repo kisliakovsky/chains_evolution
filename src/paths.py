@@ -6,6 +6,7 @@ EXPORT_DIR = Path("../export")
 CSV_EXT = "csv"
 JSON_EXT = "json"
 TXT_EXT = "txt"
+LOG_EXT = "log"
 
 
 # noinspection PyTypeChecker
@@ -55,6 +56,10 @@ def build_output_graph_path(output_path: Path, file_name: str) -> Path:
 
 def build_output_table_path(output_path: Path, file_name: str) -> Path:
     return output_path.joinpath(file_name).with_suffix(".{}".format(CSV_EXT)).resolve()
+
+
+def build_output_log_path(output_path: Path, file_name: str) -> Path:
+    return output_path.joinpath(file_name).with_suffix(".{}".format(LOG_EXT)).resolve()
 
 
 def build_subsection_dir_path(section_path: Path, file_name: str) -> Path:

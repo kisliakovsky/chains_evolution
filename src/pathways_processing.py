@@ -1,4 +1,5 @@
 from typing import List, Set, Iterable
+import random
 
 import jellyfish
 
@@ -33,7 +34,7 @@ def select_favorite_pathway(actual_pathways: List[Pathway], synthetic_pathways: 
             distance = jellyfish.levenshtein_distance(synthetic_pathway, actual_pathway)
             synthetic_pathway_distances.append(distance)
         all_min_distances.append(min(synthetic_pathway_distances))
-    index = all_min_distances.index(min(all_min_distances))
+    index = random.randrange(0, len(all_min_distances))
     return synthetic_pathways[index]
 
 

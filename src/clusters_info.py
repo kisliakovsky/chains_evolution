@@ -13,7 +13,7 @@ CLUSTER_SIZE_KEY = "CLUSTER_SIZE"
 ACTUAL_CLUSTERS_FILE_NAME = "actual_clusters"
 
 
-def calc_cluster_distribution(population_size: int, random_seed=47) -> NDArray:
+def calc_cluster_distribution(population_size: int, random_seed) -> NDArray:
     cluster_probabilities = _obtain_cluster_probabilities(CLUSTER_INFO_FILE_NAME)
     random = RandomState(random_seed)
     return random.multinomial(population_size, cluster_probabilities, size=1)[0]

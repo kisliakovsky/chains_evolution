@@ -12,6 +12,7 @@ from src.evolution import ChildGenerator
 import logging
 
 MESSAGE_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
+# MESSAGE_FORMAT = "%(message)s"
 DATE_TIME_FORMAT = "%I:%M:%S %p"
 
 console_handler = logging.StreamHandler()
@@ -35,6 +36,12 @@ DELETED_PATHWAYS_KEY = "deleted"
 
 
 def main():
+    for i in range(1000):
+        logger.info("run {}".format(i))
+        run(i)
+
+
+def run(run_index: int):
     actual_pathways_by_clusters = obtain_actual_pathways_by_clusters()
     unique_actual_pathways_by_clusters = remove_repetitive_pathways_by_clusters(actual_pathways_by_clusters)
     actual_pathways_set = flatten_all_pathways_by_clusters(unique_actual_pathways_by_clusters)
@@ -47,15 +54,17 @@ def main():
     actual_pathways_but_favorite = list(actual_pathways_set - favorite_pathway_set)
     synthetic_pathways_but_actual_and_favorite = list(
         synthetic_pathways_set - actual_pathways_set - favorite_pathway_set)
-    graph_exporting.save_for_kirill({
+    favorite_pathway_length = len(favorite_pathway)
+    graph_exporting.save_log("length: {}".format(favorite_pathway_length), favorite_pathway_length, run_index)
+    graph_exporting.save_for_gephi({
                                      SYNTHETIC_PATHWAYS_KEY: synthetic_pathways_but_actual_and_favorite,
                                      FAVORITE_PATHWAY_KEY: [favorite_pathway]
-                                     }, "synthetic_data_before")
+                                     }, favorite_pathway_length, run_index, "synthetic_data_before")
     favorite_subpathways = evolution.obtain_evolution_subsequences(favorite_pathway)
     number_of_steps = len(favorite_subpathways)
     last_step_index = number_of_steps - 1
+    graph_exporting.save_log("step,vertex_num", favorite_pathway_length, run_index)
     for step_index, subpathway in enumerate(favorite_subpathways):
-        logger.info("Step {}/{}: {}".format(step_index, last_step_index, subpathway))
         remained_pathways_set = filter_pathways(synthetic_pathways, subpathway, last_step_index == step_index)
         remained_pathways = list(remained_pathways_set)
         deleted_pathways_set = synthetic_pathways_set - remained_pathways_set
@@ -66,11 +75,12 @@ def main():
         new_pathways_but_actual_and_remained_and_favorite = list(new_pathways_set - actual_pathways_set - remained_pathways_set - favorite_pathway_set)
         deleted_pathways_but_actual = list(deleted_pathways_set - actual_pathways_set)
         step_name = "synthetic_data_after_step{}".format(step_index)
-        graph_exporting.save_for_kirill({
-                                         SYNTHETIC_PATHWAYS_KEY: remained_pathways_but_actual_and_favorite + new_pathways_but_actual_and_remained_and_favorite,
-                                         FAVORITE_PATHWAY_KEY: [favorite_pathway]}, step_name)
         synthetic_pathways_set = remained_pathways_set | new_pathways_set
         synthetic_pathways = list(synthetic_pathways_set)
+        graph_exporting.save_log("{},{}".format(step_index, len(synthetic_pathways)), favorite_pathway_length, run_index)
+        graph_exporting.save_for_gephi({
+                                         SYNTHETIC_PATHWAYS_KEY: synthetic_pathways,
+                                         FAVORITE_PATHWAY_KEY: [favorite_pathway]}, favorite_pathway_length, run_index, step_name)
 
 
 def obtain_actual_pathways_set():
@@ -84,8 +94,8 @@ def obtain_synthetic_pathways_set():
     synthetic_pathways_set = {}
     actual_number_of_synthetic_pathways = len(synthetic_pathways_set)
     while actual_number_of_synthetic_pathways < EXPECTED_NUMBER_OF_SYNTHETIC_PATHWAYS:
-        print("Population size: {}; Number of synthetic pathways: {}".format(population_size,
-                                                                             actual_number_of_synthetic_pathways))
+    #     print("Population size: {}; Number of synthetic pathways: {}".format(population_size,
+    #                                                                          actual_number_of_synthetic_pathways))
         cluster_distribution = calc_cluster_distribution(population_size, random_seed=47)
         synthetic_pathways_by_clusters = collect_all_pathways_by_clusters(cluster_distribution)
         unique_synthetic_pathways_by_clusters = remove_repetitive_pathways_by_clusters(synthetic_pathways_by_clusters)
