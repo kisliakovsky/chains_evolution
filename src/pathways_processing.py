@@ -42,6 +42,19 @@ def filter_pathways(pathways: Iterable[Pathway], subpathway: Pathway, is_last: b
     return {pathway for pathway in pathways if pathway.startswith(subpathway) and ((not is_last) or (len(pathway) <= len(subpathway)))}
 
 
+def count_occurrences_in_clusters(synthetic_pathways: Iterable[Pathway], actual_pathways_by_clusters: Iterable[Iterable[Pathway]]) -> List[int]:
+    counts = []
+    for actual_pathways in actual_pathways_by_clusters:
+        counter = 0
+        for actual_pathway in actual_pathways:
+            for synthetic_pathway in synthetic_pathways:
+                distance = jellyfish.levenshtein_distance(actual_pathway, synthetic_pathway)
+                if distance < 3:
+                    counter += 1
+        counts.append(counter)
+    return counts
+
+
 def filter_pathways_by_clusters(pathways_by_clusters: List[Set[Pathway]], subpathway: Pathway) -> List[Pathway]:
     filtered_pathways_by_clusters = []
     for cluster_pathways in pathways_by_clusters:

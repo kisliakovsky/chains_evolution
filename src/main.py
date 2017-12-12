@@ -5,7 +5,7 @@ from src.pathways_generating import collect_all_pathways_by_clusters
 from src.pathways_processing import remove_repetitive_pathways_by_clusters
 from src.pathways_processing import flatten_all_pathways_by_clusters
 from src.pathways_processing import select_favorite_pathway
-from src.pathways_processing import filter_pathways, filter_pathways_by_clusters
+from src.pathways_processing import filter_pathways, count_occurrences_in_clusters
 from src import graph_exporting, evolution, paths
 from src.evolution import ChildGenerator
 
@@ -55,15 +55,10 @@ def run(run_index: int):
     synthetic_pathways_but_actual_and_favorite = list(
         synthetic_pathways_set - actual_pathways_set - favorite_pathway_set)
     favorite_pathway_length = len(favorite_pathway)
-    graph_exporting.save_log("length: {}".format(favorite_pathway_length), favorite_pathway_length, run_index)
-    graph_exporting.save_for_gephi({
-                                     SYNTHETIC_PATHWAYS_KEY: synthetic_pathways_but_actual_and_favorite,
-                                     FAVORITE_PATHWAY_KEY: [favorite_pathway]
-                                     }, favorite_pathway_length, run_index, "synthetic_data_before")
+    graph_exporting.save_csv_log_title(["cluster{}".format(ci) for ci, _ in enumerate(unique_actual_pathways_by_clusters)], favorite_pathway_length, run_index)
     favorite_subpathways = evolution.obtain_evolution_subsequences(favorite_pathway)
     number_of_steps = len(favorite_subpathways)
     last_step_index = number_of_steps - 1
-    graph_exporting.save_log("step,vertex_num", favorite_pathway_length, run_index)
     for step_index, subpathway in enumerate(favorite_subpathways):
         remained_pathways_set = filter_pathways(synthetic_pathways, subpathway, last_step_index == step_index)
         remained_pathways = list(remained_pathways_set)
@@ -77,10 +72,9 @@ def run(run_index: int):
         step_name = "synthetic_data_after_step{}".format(step_index)
         synthetic_pathways_set = remained_pathways_set | new_pathways_set
         synthetic_pathways = list(synthetic_pathways_set)
-        graph_exporting.save_log("{},{}".format(step_index, len(synthetic_pathways)), favorite_pathway_length, run_index)
-        graph_exporting.save_for_gephi({
-                                         SYNTHETIC_PATHWAYS_KEY: synthetic_pathways,
-                                         FAVORITE_PATHWAY_KEY: [favorite_pathway]}, favorite_pathway_length, run_index, step_name)
+        synthetic_occurrences = count_occurrences_in_clusters(synthetic_pathways, unique_actual_pathways_by_clusters)
+        if step_index != last_step_index:
+            graph_exporting.save_csv_log(synthetic_occurrences, favorite_pathway_length, run_index)
 
 
 def obtain_actual_pathways_set():
@@ -94,8 +88,6 @@ def obtain_synthetic_pathways_set():
     synthetic_pathways_set = {}
     actual_number_of_synthetic_pathways = len(synthetic_pathways_set)
     while actual_number_of_synthetic_pathways < EXPECTED_NUMBER_OF_SYNTHETIC_PATHWAYS:
-    #     print("Population size: {}; Number of synthetic pathways: {}".format(population_size,
-    #                                                                          actual_number_of_synthetic_pathways))
         cluster_distribution = calc_cluster_distribution(population_size, random_seed=47)
         synthetic_pathways_by_clusters = collect_all_pathways_by_clusters(cluster_distribution)
         unique_synthetic_pathways_by_clusters = remove_repetitive_pathways_by_clusters(synthetic_pathways_by_clusters)
