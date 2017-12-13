@@ -5,7 +5,7 @@ from src.pathways_generating import collect_all_pathways_by_clusters
 from src.pathways_processing import remove_repetitive_pathways_by_clusters
 from src.pathways_processing import flatten_all_pathways_by_clusters
 from src.pathways_processing import select_favorite_pathway
-from src.pathways_processing import filter_pathways, count_occurrences_in_clusters
+from src.pathways_processing import filter_pathways, count_occurrences_in_clusters, determine_favorite_cluster
 from src import graph_exporting, evolution, paths
 from src.evolution import ChildGenerator
 
@@ -72,9 +72,11 @@ def run(run_index: int):
         step_name = "synthetic_data_after_step{}".format(step_index)
         synthetic_pathways_set = remained_pathways_set | new_pathways_set
         synthetic_pathways = list(synthetic_pathways_set)
-        synthetic_occurrences = count_occurrences_in_clusters(synthetic_pathways, unique_actual_pathways_by_clusters)
-        if step_index != last_step_index:
+        synthetic_occurrences = count_occurrences_in_clusters(synthetic_pathways + [favorite_pathway], unique_actual_pathways_by_clusters)
+        if last_step_index != step_index:
             graph_exporting.save_csv_log(synthetic_occurrences, favorite_pathway_length, run_index)
+    favorite_pathway_cluster = determine_favorite_cluster(favorite_pathway, unique_actual_pathways_by_clusters)
+    graph_exporting.save_csv_log(favorite_pathway_cluster, favorite_pathway_length, run_index)
 
 
 def obtain_actual_pathways_set():

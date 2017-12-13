@@ -42,17 +42,33 @@ def filter_pathways(pathways: Iterable[Pathway], subpathway: Pathway, is_last: b
     return {pathway for pathway in pathways if pathway.startswith(subpathway) and ((not is_last) or (len(pathway) <= len(subpathway)))}
 
 
-def count_occurrences_in_clusters(synthetic_pathways: Iterable[Pathway], actual_pathways_by_clusters: Iterable[Iterable[Pathway]]) -> List[int]:
-    counts = []
-    for actual_pathways in actual_pathways_by_clusters:
-        counter = 0
-        for actual_pathway in actual_pathways:
-            for synthetic_pathway in synthetic_pathways:
-                distance = jellyfish.levenshtein_distance(actual_pathway, synthetic_pathway)
-                if distance < 3:
-                    counter += 1
-        counts.append(counter)
+def count_occurrences_in_clusters(synthetic_pathways: List[Pathway], actual_pathways_by_clusters: Iterable[Iterable[Pathway]]) -> List[int]:
+    counts = [0 for _ in actual_pathways_by_clusters]
+    for synthetic_pathway in synthetic_pathways:
+        indices = _determine_clusters(synthetic_pathway, actual_pathways_by_clusters)
+        for index in indices:
+            counts[index] += 1
     return counts
+
+
+def determine_favorite_cluster(favorite_pathway: Pathway, actual_pathways_by_clusters: Iterable[Iterable[Pathway]]) -> List[int]:
+    counts = [0 for _ in actual_pathways_by_clusters]
+    indices = _determine_clusters(favorite_pathway, actual_pathways_by_clusters)
+    for index in indices:
+        counts[index] = 1
+    return counts
+
+
+def _determine_clusters(pathway: Pathway, actual_pathways_by_clusters: Iterable[Iterable[Pathway]]) -> List[int]:
+    distances = [0 for _ in actual_pathways_by_clusters]
+    for i, actual_pathways in enumerate(actual_pathways_by_clusters):
+        for actual_pathway in actual_pathways:
+            distance = jellyfish.levenshtein_distance(pathway, actual_pathway)
+            distances[i] += distance
+        distances[i] /= len(actual_pathways)
+    smallest = min(distances)
+    indices = [index for index, element in enumerate(distances) if smallest == element]
+    return indices
 
 
 def filter_pathways_by_clusters(pathways_by_clusters: List[Set[Pathway]], subpathway: Pathway) -> List[Pathway]:
