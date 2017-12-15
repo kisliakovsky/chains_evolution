@@ -12,7 +12,7 @@ CLUSTERS = [[0.235294118, 0.351648352, 0.463414634, 0.591549296, 0.734375, 0.804
 
 
 data = CLUSTERS
-data = numpy.asarray(data)
+data = numpy.asarray(data) * 100
 ax = seaborn.tsplot(data=data, ci=[95])
 ax.set_xlabel("step")
 ax.set_ylabel("% synthetic pathways in correct cluster")

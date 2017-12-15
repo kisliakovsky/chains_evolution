@@ -9,9 +9,9 @@ START_GENE = "X"
 FINISH_GENE = "Y"
 
 
-def obtain_evolution_subsequences(sequence: str):
-    subsequences = strings.obtain_forward_substrings(sequence)
-    return subsequences[2:-1]
+def get_evo_subsequences(sequence: str):
+    subsequences = strings.get_forward_substrings(sequence)
+    return subsequences[2:]
 
 
 class ChildGenerator(object):
@@ -57,7 +57,8 @@ class ChildGenerator(object):
                     new_curr_probabilities = [curr_probability + p for curr_probability in curr_probabilities]
                     del new_curr_probabilities[i]
                     del new_curr_codes[i]
-                    index = list(curr_random.multinomial(1, new_curr_probabilities, size=1)[0]).index(1)
+                    temp = curr_random.multinomial(1, new_curr_probabilities, size=1)[0]
+                    index = list(temp).index(1)
                     return new_curr_codes[index], next_gene
         return curr_genes[index], ""
 

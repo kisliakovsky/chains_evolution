@@ -28,7 +28,7 @@ def save_csv_log(row: List[int], fav_node_length: int, run_index: int):
     log_file_path = paths.build_output_table_path(main_path, "run{}".format(run_index))
     row = [str(item) for item in row]
     with open(str(log_file_path), 'a') as log_file:
-        log_file.write(",".join(row) + "\n")
+        log_file.write(";".join(row) + "\n")
 
 
 def _save_csvs(sequences: Dict[str, List[str]], fav_node_length: int, run_index: int, step_name: str):

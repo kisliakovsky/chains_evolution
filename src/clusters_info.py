@@ -6,17 +6,20 @@ from numpy.random import RandomState
 # noinspection PyPep8Naming
 from numpy import ndarray as NDArray
 
-from src import paths
+from src import paths, random_api
+from src.random_api import ProbabilityList
 
 CLUSTER_INFO_FILE_NAME = "clusters_size"
 CLUSTER_SIZE_KEY = "CLUSTER_SIZE"
 ACTUAL_CLUSTERS_FILE_NAME = "actual_clusters"
 
 
-def calc_cluster_distribution(population_size: int, random_seed) -> NDArray:
-    cluster_probabilities = _obtain_cluster_probabilities(CLUSTER_INFO_FILE_NAME)
-    random = RandomState(random_seed)
-    return random.multinomial(population_size, cluster_probabilities, size=1)[0]
+def calc_cluster_dist(probs: ProbabilityList, population_size: int) -> NDArray:
+    return random_api.get_next_multinomial_dist_once(probs, population_size)
+
+
+def get_cluster_probs() -> NDArray:
+    return _obtain_cluster_probabilities(CLUSTER_INFO_FILE_NAME)
 
 
 def _obtain_cluster_probabilities(file_name: str) -> NDArray:
@@ -40,7 +43,7 @@ def _obtain_absolute_cluster_sizes(dataframe: DataFrame) -> Series:
     return dataframe[CLUSTER_SIZE_KEY]
 
 
-def obtain_actual_pathways_by_clusters() -> List[List[str]]:
+def get_act_path_mtrx() -> List[List[str]]:
     return _obtain_actual_pathways_by_clusters(ACTUAL_CLUSTERS_FILE_NAME)
 
 
