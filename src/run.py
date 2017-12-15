@@ -6,7 +6,7 @@ from src import collects, clustering
 from src.clusters_info import calc_cluster_dist
 from src.pathways_generating import collect_all_pathways_by_clusters
 
-SYNT_PATH_EXPECT_NUM = 100
+SYNT_PATH_EXPECT_NUM = 500
 
 
 class RunnerBuilder(object):
@@ -81,6 +81,7 @@ class RunnerBuilder(object):
             synt_path_dict = collects.transform_matrix_to_dict(synt_path_mtrx)
             act_path_dict, synt_path_dict = collects.merge_matrix_dicts(act_path_dict, synt_path_dict)
             clustering.check_clusters(synt_path_dict, self.cluster_centers)
+            clustering.check_clusters2(synt_path_dict, self.act_path_mtrx)
             for step_idx, fav_subpath in enumerate(self.fav_subpaths):
                 pass
 

@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 import jellyfish
 
@@ -18,10 +18,26 @@ def get_cluster_centers(act_matrix: List[List[str]]) -> List[str]:
 
 def check_clusters(synt_dict: Dict[str, Dict[str, int]], centers: List[str]):
     for k, v in synt_dict.items():
-        v["new_idx"] = _check_cluster(k, centers)
+        v["dist"], v["min_dist"], v["new_idx"] = _check_cluster(v["idx"], k, centers)
 
 
-def _check_cluster(path: str, centers: List[str]) -> List[int]:
+def check_clusters2(synt_dict: Dict[str, Dict[str, int]], act_mtrx: List[List[str]]):
+    for k, v in synt_dict.items():
+        v["dist2"], v["min_dist2"], v["new_idx2"] = _check_cluster2(v["idx"], k, act_mtrx)
+
+
+def _check_cluster(exp_idx: int, path: str, centers: List[str]) -> Tuple[int, int, List[int]]:
     dists = [jellyfish.levenshtein_distance(path, center) for center in centers]
     min_dist = min(dists)
-    return [i for i, dist in enumerate(dists) if dist == min_dist]
+    exp_dist = dists[exp_idx]
+    return exp_dist, min_dist, [i for i, dist in enumerate(dists) if dist == min_dist]
+
+
+def _check_cluster2(exp_idx: int, path: str, act_mtrx: List[List[str]]) -> Tuple[int, int, List[int]]:
+    dists = []
+    for items in act_mtrx:
+        dist = min([jellyfish.levenshtein_distance(path, item) for item in items])
+        dists.append(dist)
+    min_dist = min(dists)
+    exp_dist = dists[exp_idx]
+    return exp_dist, min_dist, [i for i, dist in enumerate(dists) if dist == min_dist]
