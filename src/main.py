@@ -41,7 +41,7 @@ DELETED_PATHWAYS_KEY = "deleted"
 
 def main():
     act_path_mtrx = get_act_path_mtrx()
-    cluster_centers = clustering.get_cluster_centers(act_path_mtrx)
+    cluster_centers = ['XAFIFDY', 'XAFNIFEFIFEY', 'XAFEY', 'XAFNIFEDY', 'XAFNIFEY', 'XAFIFEY', 'XAFNIFEIFEY']
     fav_path = "XAFNFIFEFDY"
     act_fav_count, act_path_mtrx = collects.remove_item_from_matrix(fav_path, act_path_mtrx)
     fav_subpaths = evolution.get_evo_subsequences(fav_path)

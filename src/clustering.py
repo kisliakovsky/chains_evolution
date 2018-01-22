@@ -11,8 +11,11 @@ def get_cluster_centers(act_matrix: List[List[str]]) -> List[str]:
         dist_matrix = distances.calculate_distances(items)
         dists_sums = [sum(row) for row in dist_matrix]
         min_sum = min(dists_sums)
-        idx = dists_sums.index(min_sum)
-        centers.append(items[idx])
+        possible_centers = []
+        for i, s in enumerate(dists_sums):
+            if s == min_sum:
+                possible_centers.append(items[i])
+        centers.append(possible_centers)
     return centers
 
 
