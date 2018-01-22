@@ -17,13 +17,55 @@ def get_cluster_centers(act_matrix: List[List[str]]) -> List[str]:
 
 
 def check_clusters(synt_dict: Dict[str, Dict[str, int]], centers: List[str]):
+    all_count = 0
+    correct_count = 0
+    incorrect_count = 0
+    error_counts = {
+        0: 0,
+        1: 0,
+        2: 0,
+        3: 0,
+        4: 0,
+        5: 0,
+        6: 0
+    }
     for k, v in synt_dict.items():
         v["dist"], v["min_dist"], v["new_idx"] = _check_cluster(v["idx"], k, centers)
+        if v["idx"] in v["new_idx"]:
+            correct_count += v["count"]
+        else:
+            incorrect_count += v["count"]
+            error_counts[v["idx"]] += v["count"]
+        all_count += v["count"]
+    for k in error_counts.keys():
+        error_counts[k] /= incorrect_count
+    return correct_count / all_count, error_counts
 
 
 def check_clusters2(synt_dict: Dict[str, Dict[str, int]], act_mtrx: List[List[str]]):
+    all_count = 0
+    correct_count = 0
+    incorrect_count = 0
+    error_counts = {
+        0: 0,
+        1: 0,
+        2: 0,
+        3: 0,
+        4: 0,
+        5: 0,
+        6: 0
+    }
     for k, v in synt_dict.items():
         v["dist2"], v["min_dist2"], v["new_idx2"] = _check_cluster2(v["idx"], k, act_mtrx)
+        if v["idx"] in v["new_idx2"]:
+            correct_count += v["count"]
+        else:
+            incorrect_count += v["count"]
+            error_counts[v["idx"]] += v["count"]
+        all_count += v["count"]
+    for k in error_counts.keys():
+        error_counts[k] /= incorrect_count
+    return correct_count / all_count, error_counts
 
 
 def _check_cluster(exp_idx: int, path: str, centers: List[str]) -> Tuple[int, int, List[int]]:

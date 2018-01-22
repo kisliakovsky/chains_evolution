@@ -46,8 +46,9 @@ def main():
     act_fav_count, act_path_mtrx = collects.remove_item_from_matrix(fav_path, act_path_mtrx)
     fav_subpaths = evolution.get_evo_subsequences(fav_path)
     cluster_probs = get_cluster_probs()
-    for i in range(1):
-        logger.info("run {}".format(i))
+    for i in range(5):
+        print()
+        # logger.info("run {}".format(i))
         builder = RunnerBuilder()
         builder.set_idx(i)
         builder.set_act_path_mtrx(act_path_mtrx)
@@ -57,7 +58,6 @@ def main():
         builder.set_act_fav_count(act_fav_count)
         runner = builder.build()
         runner.run()
-
 
 
 def obtain_actual_pathways_set():

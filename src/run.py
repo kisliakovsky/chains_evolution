@@ -80,8 +80,10 @@ class RunnerBuilder(object):
             act_path_dict = collects.transform_matrix_to_dict(self.act_path_mtrx)
             synt_path_dict = collects.transform_matrix_to_dict(synt_path_mtrx)
             act_path_dict, synt_path_dict = collects.merge_matrix_dicts(act_path_dict, synt_path_dict)
-            clustering.check_clusters(synt_path_dict, self.cluster_centers)
-            clustering.check_clusters2(synt_path_dict, self.act_path_mtrx)
+            res1, res2 = clustering.check_clusters(synt_path_dict, self.cluster_centers)
+            print("Correct clustered number by center: {}. Errors by clusters: {}".format(res1, res2))
+            res1, res2 = clustering.check_clusters2(synt_path_dict, self.act_path_mtrx)
+            print("Correct clustered number by the closest vertex: {}. Errors by clusters: {}".format(res1, res2))
             for step_idx, fav_subpath in enumerate(self.fav_subpaths):
                 pass
 
