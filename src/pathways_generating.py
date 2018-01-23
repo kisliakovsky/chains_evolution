@@ -4,6 +4,7 @@ from numpy.random import RandomState
 # noinspection PyPep8Naming
 from numpy import ndarray as NDArray
 
+from src.evolution import ChildGenerator
 from src.transition_info import obtain_sources_and_transition_probabilities
 
 Pathway = str
@@ -63,3 +64,15 @@ def _collect_pathways_by_clusters(cluster_distribution: NDArray) -> List[List[Pa
 
 def _check_all_pathways_is_over(current_sources: Set[Location]):
     return len(current_sources) == 1 and list(current_sources)[0] == FINISH_LOCATION
+
+
+def generate_new_pathways(remained_pathways: List[str], number):
+    new_pathways = []
+    if len(remained_pathways) != 0:
+        pathway_generator = ChildGenerator(remained_pathways)
+        while (len(new_pathways) + len(remained_pathways)) < number:
+            new_synthetic_pathway = pathway_generator.generate()
+            while new_synthetic_pathway is None:
+                new_synthetic_pathway = pathway_generator.generate()
+            new_pathways.append(new_synthetic_pathway)
+    return new_pathways

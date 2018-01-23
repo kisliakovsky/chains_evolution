@@ -11,3 +11,7 @@ def calculate_distances(vectors):
             distances[i][j] = jellyfish.levenshtein_distance(vectors[i], vectors[j])
             distances[j][i] = distances[i][j]
     return distances
+
+
+def calculate_distance(vector1: str, vector2: str) -> float:
+    return jellyfish.damerau_levenshtein_distance(vector1, vector2)

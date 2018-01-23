@@ -1,4 +1,4 @@
-from typing import List, Set, Iterable
+from typing import List, Set, Iterable, Tuple
 import random
 
 import jellyfish
@@ -18,11 +18,11 @@ def remove_repetitive_pathways_by_clusters(all_pathways_by_clusters: List[List[P
     return unique_pathways_by_clusters
 
 
-def flatten_all_pathways_by_clusters(all_pathways_by_clusters: List[Iterable[Pathway]]) -> Set[Pathway]:
-    pathways = set()
+def flatten_all_pathways_by_clusters(all_pathways_by_clusters: List[List[Pathway]]) -> List[Pathway]:
+    pathways = []
     for cluster_pathways in all_pathways_by_clusters:
         for pathway in cluster_pathways:
-            pathways.add(pathway)
+            pathways.append(pathway)
     return pathways
 
 
@@ -38,8 +38,14 @@ def select_favorite_pathway(actual_pathways: List[Pathway], synthetic_pathways: 
     return synthetic_pathways[index]
 
 
-def filter_pathways(pathways: Iterable[Pathway], subpathway: Pathway, is_last: bool) -> Set[Pathway]:
-    return {pathway for pathway in pathways if pathway.startswith(subpathway) and ((not is_last) or (len(pathway) <= len(subpathway)))}
+def filter_pathways(pathways: Iterable[Pathway], subpathway: Pathway, is_last: bool) -> Tuple[List[Pathway], List[Pathway]]:
+    remained, deleted = [], []
+    for pathway in pathways:
+        if pathway.startswith(subpathway) and ((not is_last) or (len(pathway) <= len(subpathway))):
+            remained.append(pathway)
+        else:
+            deleted.append(pathway)
+    return remained, deleted
 
 
 def count_occurrences_in_clusters(synthetic_pathways: List[Pathway], actual_pathways_by_clusters: Iterable[Iterable[Pathway]]) -> List[int]:
@@ -71,9 +77,11 @@ def _determine_clusters(pathway: Pathway, actual_pathways_by_clusters: Iterable[
     return indices
 
 
-def filter_pathways_by_clusters(pathways_by_clusters: List[Set[Pathway]], subpathway: Pathway) -> List[Pathway]:
-    filtered_pathways_by_clusters = []
+def filter_pathways_by_clusters(pathways_by_clusters: List[List[Pathway]], subpathway: Pathway, is_last: bool) -> Tuple[List[List[Pathway]], List[List[Pathway]]]:
+    remained_pathways_by_clusters = []
+    deleted_pathways_by_clusters = []
     for cluster_pathways in pathways_by_clusters:
-        filtered_pathways = filter_pathways(cluster_pathways, subpathway)
-        filtered_pathways_by_clusters.append(filtered_pathways)
-    return filtered_pathways_by_clusters
+        remained, deleted = filter_pathways(cluster_pathways, subpathway, is_last)
+        remained_pathways_by_clusters.append(remained)
+        deleted_pathways_by_clusters.append(deleted)
+    return remained_pathways_by_clusters, deleted_pathways_by_clusters

@@ -3,6 +3,8 @@ from typing import List, Dict, Tuple
 import jellyfish
 
 from src import distances
+import logging
+logger = logging.getLogger('main_logger')
 
 
 def get_cluster_centers(act_matrix: List[List[str]]) -> List[str]:
@@ -17,6 +19,13 @@ def get_cluster_centers(act_matrix: List[List[str]]) -> List[str]:
                 possible_centers.append(items[i])
         centers.append(possible_centers)
     return centers
+
+
+def determine_cluster(path: str, centers: List[str]):
+    dists = [distances.calculate_distance(path, center) for center in centers]
+    min_dist = min(dists)
+    return [i for i, dist in enumerate(dists) if dist == min_dist]
+
 
 
 def check_clusters(synt_dict: Dict[str, Dict[str, int]], centers: List[str]):
@@ -86,3 +95,11 @@ def _check_cluster2(exp_idx: int, path: str, act_mtrx: List[List[str]]) -> Tuple
     min_dist = min(dists)
     exp_dist = dists[exp_idx]
     return exp_dist, min_dist, [i for i, dist in enumerate(dists) if dist == min_dist]
+
+
+def print_quality_info(synt_paths, cluster_centers):
+    logger.info('Number of synthetic vertices: {}'.format(len(set(synt_paths))))
+    counters = [0 for _ in cluster_centers]
+    for sp in synt_paths:
+        possible_clusters = determine_cluster(sp, cluster_centers)
+        # TODO: Continue.

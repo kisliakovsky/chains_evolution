@@ -9,7 +9,7 @@ from src.pathways_processing import remove_repetitive_pathways_by_clusters
 from src.pathways_processing import flatten_all_pathways_by_clusters
 from src.pathways_processing import select_favorite_pathway
 from src.pathways_processing import filter_pathways, count_occurrences_in_clusters, determine_favorite_cluster
-from src import graph_exporting, evolution, paths, collects, clustering
+from src import evolution, collects, clustering
 from src.evolution import ChildGenerator
 
 import logging
@@ -42,15 +42,20 @@ DELETED_PATHWAYS_KEY = "deleted"
 def main():
     act_path_mtrx = get_act_path_mtrx()
     cluster_centers = ['XAFIFDY', 'XAFNIFEFIFEY', 'XAFEY', 'XAFNIFEDY', 'XAFNIFEY', 'XAFIFEY', 'XAFNIFEIFEY']
-    fav_path = "XAFNFIFEFDY"
+    # fav_paths = ['XAFIFDY', 'XAFNIFEFIFEY', 'XAFEY', 'XAFNIFEDY', 'XAFNIFEY', 'XAFIFEY', 'XAFNIFEIFEY']
+    # fav_paths = ['XAFNFDY', 'XAFNIFNFEY', 'XAFDY', 'XAFNFEDY', 'XAFNIFY', 'XAFNIFEY', 'XAFNIFEIFY']
+    fav_paths = ['XAFNFDY', 'XAFNIFEFIFEY', 'XAFDY', 'XAFNFEDY', 'XAFNIFEY', 'XAFIFEY', 'XAFNIFEIFY']
+    fav_index = 0
+    fav_path = fav_paths[fav_index]
     act_fav_count, act_path_mtrx = collects.remove_item_from_matrix(fav_path, act_path_mtrx)
     fav_subpaths = evolution.get_evo_subsequences(fav_path)
     cluster_probs = get_cluster_probs()
-    for i in range(5):
+    for i in range(1):
         print()
-        # logger.info("run {}".format(i))
+        logger.info("Run {}".format(i))
         builder = RunnerBuilder()
         builder.set_idx(i)
+        builder.set_fav_idx(fav_index)
         builder.set_act_path_mtrx(act_path_mtrx)
         builder.set_cluster_centers(cluster_centers)
         builder.set_cluster_probs(cluster_probs)
@@ -64,18 +69,6 @@ def obtain_actual_pathways_set():
     actual_pathways_by_clusters = get_act_path_mtrx()
     unique_actual_pathways_by_clusters = remove_repetitive_pathways_by_clusters(actual_pathways_by_clusters)
     return flatten_all_pathways_by_clusters(unique_actual_pathways_by_clusters)
-
-
-def generate_new_pathways(remained_pathways_set, number):
-    new_pathways = []
-    if len(remained_pathways_set) != 0:
-        pathway_generator = ChildGenerator(remained_pathways_set)
-        while (len(new_pathways) + len(remained_pathways_set)) < number:
-            new_synthetic_pathway = pathway_generator.generate()
-            while new_synthetic_pathway is None:
-                new_synthetic_pathway = pathway_generator.generate()
-            new_pathways.append(new_synthetic_pathway)
-    return new_pathways
 
 
 if __name__ == '__main__':
