@@ -8,6 +8,7 @@ from src.evolution import ChildGenerator
 from src import pathways_generating as generation
 from src import pathways_processing as process
 import logging
+import random
 
 logger = logging.getLogger('main_logger')
 
@@ -63,6 +64,10 @@ class RunnerBuilder(object):
             return self.__idx
 
         @property
+        def fav_idx(self) -> int:
+            return self.__fav_idx
+
+        @property
         def act_path_mtrx(self) -> List[List[str]]:
             return self.__act_path_mtrx
 
@@ -89,12 +94,13 @@ class RunnerBuilder(object):
             number_of_steps = len(self.fav_subpaths)
             intermediate_step_index = number_of_steps // 2
             last_step_index = number_of_steps - 1
-            clustering.print_quality_info(synt_paths, self.cluster_centers)
+            clustering.print_quality_info(synt_paths, self.cluster_centers, self.fav_idx)
             for step_idx, fav_subpath in enumerate(self.fav_subpaths):
                 logger.info('Step {}/{}: {}'.format(step_idx, last_step_index, fav_subpath))
                 remained_paths, deleted_paths = process.filter_pathways(synt_paths, fav_subpath, step_idx == last_step_index)
                 synt_paths = generation.generate_new_pathways(remained_paths, len(synt_paths))
-                clustering.print_quality_info(synt_paths, self.cluster_centers)
+
+                clustering.print_quality_info(synt_paths, self.cluster_centers, self.fav_idx)
 
     def build(self) -> '__Runner':
         args = (self.__idx, self.__fav_idx, self.__act_path_mtrx, self.__cluster_centers,

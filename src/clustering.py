@@ -97,9 +97,17 @@ def _check_cluster2(exp_idx: int, path: str, act_mtrx: List[List[str]]) -> Tuple
     return exp_dist, min_dist, [i for i, dist in enumerate(dists) if dist == min_dist]
 
 
-def print_quality_info(synt_paths, cluster_centers):
-    logger.info('Number of synthetic vertices: {}'.format(len(set(synt_paths))))
+def calc_cluster_chances(synt_paths, cluster_centers):
     counters = [0 for _ in cluster_centers]
     for sp in synt_paths:
         possible_clusters = determine_cluster(sp, cluster_centers)
-        # TODO: Continue.
+        for possible_cluster in possible_clusters:
+            counters[possible_cluster] += 1 / (len(possible_clusters))
+    return [count / len(synt_paths) for count in counters]
+
+
+def print_quality_info(synt_paths, cluster_centers, fav_index):
+    logger.info('Expected cluster: {}'.format(fav_index))
+    logger.info('Number of synthetic vertices: {}'.format(len(set(synt_paths))))
+    chances = calc_cluster_chances(synt_paths, cluster_centers)
+    logger.info('Chances by cluster: {}'.format(str(chances)))
