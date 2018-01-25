@@ -12,7 +12,7 @@ import random
 
 logger = logging.getLogger('main_logger')
 
-SYNT_PATH_EXPECT_NUM = 500
+SYNT_PATH_EXPECT_NUM = 750
 
 
 class RunnerBuilder(object):
@@ -29,8 +29,8 @@ class RunnerBuilder(object):
     def set_idx(self, idx: int):
         self.__idx = idx
 
-    def set_fav_idx(self, idx: int):
-        self.__idx = idx
+    def set_fav_idx(self, fav_idx: int):
+        self.__fav_idx = fav_idx
 
     def set_act_path_mtrx(self, act_path_mtrx: List[List[str]]):
         self.__act_path_mtrx = act_path_mtrx
@@ -91,6 +91,10 @@ class RunnerBuilder(object):
             cluster_dist = calc_cluster_dist(self.cluster_probs, SYNT_PATH_EXPECT_NUM)
             synt_path_mtrx = generation.collect_all_pathways_by_clusters(cluster_dist)
             synt_paths = process.flatten_all_pathways_by_clusters(synt_path_mtrx)
+            if self.fav_subpaths[-1] not in synt_paths:
+                logger.error('Not valid for estimation')
+                logger.info('Run skipped')
+                return
             number_of_steps = len(self.fav_subpaths)
             intermediate_step_index = number_of_steps // 2
             last_step_index = number_of_steps - 1
@@ -99,7 +103,6 @@ class RunnerBuilder(object):
                 logger.info('Step {}/{}: {}'.format(step_idx, last_step_index, fav_subpath))
                 remained_paths, deleted_paths = process.filter_pathways(synt_paths, fav_subpath, step_idx == last_step_index)
                 synt_paths = generation.generate_new_pathways(remained_paths, len(synt_paths))
-
                 clustering.print_quality_info(synt_paths, self.cluster_centers, self.fav_idx)
 
     def build(self) -> '__Runner':

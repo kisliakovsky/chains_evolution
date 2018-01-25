@@ -44,13 +44,13 @@ def main():
     cluster_centers = ['XAFIFDY', 'XAFNIFEFIFEY', 'XAFEY', 'XAFNIFEDY', 'XAFNIFEY', 'XAFIFEY', 'XAFNIFEIFEY']
     # fav_paths = ['XAFIFDY', 'XAFNIFEFIFEY', 'XAFEY', 'XAFNIFEDY', 'XAFNIFEY', 'XAFIFEY', 'XAFNIFEIFEY']
     # fav_paths = ['XAFNFDY', 'XAFNIFNFEY', 'XAFDY', 'XAFNFEDY', 'XAFNIFY', 'XAFNIFEY', 'XAFNIFEIFY']
-    fav_paths = ['XAFNFDY', 'XAFNIFEFIFEY', 'XAFDY', 'XAFNFEDY', 'XAFNIFEY', 'XAFIFEY', 'XAFNIFEIFY']
-    fav_index = 0
+    fav_paths = ['XAFNFDY', 'XAFNIFEFIFEY', 'XAFDY', 'XAFNFEDY', 'XAFNIFEY', 'XAFIFEY', 'XAFNIFIFEY']
+    fav_index = 1
     fav_path = fav_paths[fav_index]
     act_fav_count, act_path_mtrx = collects.remove_item_from_matrix(fav_path, act_path_mtrx)
     fav_subpaths = evolution.get_evo_subsequences(fav_path)
     cluster_probs = get_cluster_probs()
-    for i in range(1):
+    for i in range(10):
         print()
         logger.info("Run {}".format(i))
         builder = RunnerBuilder()

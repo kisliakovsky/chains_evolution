@@ -71,8 +71,8 @@ def generate_new_pathways(remained_pathways: List[str], number):
     if len(remained_pathways) != 0:
         pathway_generator = ChildGenerator(remained_pathways)
         while (len(new_pathways) + len(remained_pathways)) < number:
-            new_synthetic_pathway = pathway_generator.generate()
-            while new_synthetic_pathway is None:
-                new_synthetic_pathway = pathway_generator.generate()
-            new_pathways.append(new_synthetic_pathway)
-    return new_pathways
+            new_pathway = pathway_generator.generate()
+            while new_pathway is None:
+                new_pathway = pathway_generator.generate()
+            new_pathways.append(new_pathway)
+    return new_pathways + remained_pathways
