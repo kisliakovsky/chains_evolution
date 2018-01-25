@@ -1,19 +1,9 @@
-import operator
-from typing import List
 # noinspection PyPep8Naming
-from numpy import ndarray as NDArray
-
-from src.clusters_info import calc_cluster_dist, get_act_path_mtrx, get_cluster_probs
-from src.pathways_generating import collect_all_pathways_by_clusters
-from src.pathways_processing import remove_repetitive_pathways_by_clusters
-from src.pathways_processing import flatten_all_pathways_by_clusters
-from src.pathways_processing import select_favorite_pathway
-from src.pathways_processing import filter_pathways, count_occurrences_in_clusters, determine_favorite_cluster
-from src import evolution, collects, clustering
-from src.evolution import ChildGenerator
 
 import logging
 
+from src import evolution, collects
+from src.clusters_info import get_act_path_mtrx, get_cluster_probs
 from src.run import RunnerBuilder
 
 MESSAGE_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
@@ -42,17 +32,16 @@ DELETED_PATHWAYS_KEY = "deleted"
 def main():
     act_path_mtrx = get_act_path_mtrx()
     cluster_centers = ['XAFIFDY', 'XAFNIFEFIFEY', 'XAFEY', 'XAFNIFEDY', 'XAFNIFEY', 'XAFIFEY', 'XAFNIFEIFEY']
-    # fav_paths = ['XAFIFDY', 'XAFNIFEFIFEY', 'XAFEY', 'XAFNIFEDY', 'XAFNIFEY', 'XAFIFEY', 'XAFNIFEIFEY']
-    # fav_paths = ['XAFNFDY', 'XAFNIFNFEY', 'XAFDY', 'XAFNFEDY', 'XAFNIFY', 'XAFNIFEY', 'XAFNIFEIFY']
     fav_paths = ['XAFNFDY', 'XAFNIFEFIFEY', 'XAFDY', 'XAFNFEDY', 'XAFNIFEY', 'XAFIFEY', 'XAFNIFIFEY']
     fav_index = 1
+    logger.info('Expected cluster: {}'.format(fav_index))
     fav_path = fav_paths[fav_index]
     act_fav_count, act_path_mtrx = collects.remove_item_from_matrix(fav_path, act_path_mtrx)
     fav_subpaths = evolution.get_evo_subsequences(fav_path)
     cluster_probs = get_cluster_probs()
     for i in range(10):
-        print()
-        logger.info("Run {}".format(i))
+        logger.info('')
+        logger.info('Run {}'.format(i))
         builder = RunnerBuilder()
         builder.set_idx(i)
         builder.set_fav_idx(fav_index)
@@ -63,12 +52,6 @@ def main():
         builder.set_act_fav_count(act_fav_count)
         runner = builder.build()
         runner.run()
-
-
-def obtain_actual_pathways_set():
-    actual_pathways_by_clusters = get_act_path_mtrx()
-    unique_actual_pathways_by_clusters = remove_repetitive_pathways_by_clusters(actual_pathways_by_clusters)
-    return flatten_all_pathways_by_clusters(unique_actual_pathways_by_clusters)
 
 
 if __name__ == '__main__':

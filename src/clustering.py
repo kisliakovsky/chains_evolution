@@ -97,17 +97,27 @@ def _check_cluster2(exp_idx: int, path: str, act_mtrx: List[List[str]]) -> Tuple
     return exp_dist, min_dist, [i for i, dist in enumerate(dists) if dist == min_dist]
 
 
-def calc_cluster_chances(synt_paths, cluster_centers):
+def calc_number_of_paths_by_clusters(synt_paths, cluster_centers):
     counters = [0 for _ in cluster_centers]
     for sp in synt_paths:
         possible_clusters = determine_cluster(sp, cluster_centers)
         for possible_cluster in possible_clusters:
             counters[possible_cluster] += 1 / (len(possible_clusters))
-    return [count / len(synt_paths) for count in counters]
+    return counters
+    # return [count / len(synt_paths) for count in counters]
 
 
 def print_quality_info(synt_paths, cluster_centers, fav_index):
-    logger.info('Expected cluster: {}'.format(fav_index))
-    logger.info('Number of synthetic vertices: {}'.format(len(set(synt_paths))))
-    chances = calc_cluster_chances(synt_paths, cluster_centers)
-    logger.info('Chances by cluster: {}'.format(str(chances)))
+    number_of_paths = len(synt_paths)
+    logger.info('Number of synthetic pathways: {}'.format(len(synt_paths)))
+    number_of_paths_by_clusters = calc_number_of_paths_by_clusters(synt_paths, cluster_centers)
+    logger.info('Number of synthetic pathways by cluster: {}'.format(str(number_of_paths_by_clusters)))
+    chances_of_paths_by_clusters = [count / number_of_paths for count in number_of_paths_by_clusters]
+    logger.info('Chances of synthetic pathways by cluster: {}'.format(str(chances_of_paths_by_clusters)))
+    synt_vertices = set(synt_paths)
+    number_of_vertices = len(synt_vertices)
+    logger.info('Number of synthetic vertices: {}'.format(number_of_vertices))
+    number_of_vertices_by_clusters = calc_number_of_paths_by_clusters(synt_vertices, cluster_centers)
+    logger.info('Number of synthetic vertices by cluster: {}'.format(str(number_of_vertices_by_clusters)))
+    chances_of_vertices_by_clusters = [count / number_of_vertices for count in number_of_vertices_by_clusters]
+    logger.info('Chances of synthetic vertices by cluster: {}'.format(str(chances_of_vertices_by_clusters)))
