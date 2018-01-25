@@ -33,7 +33,7 @@ def main():
     act_path_mtrx = get_act_path_mtrx()
     cluster_centers = ['XAFIFDY', 'XAFNIFEFIFEY', 'XAFEY', 'XAFNIFEDY', 'XAFNIFEY', 'XAFIFEY', 'XAFNIFEIFEY']
     fav_paths = ['XAFNFDY', 'XAFNIFEFIFEY', 'XAFDY', 'XAFNFEDY', 'XAFNIFEY', 'XAFIFEY', 'XAFNIFIFEY']
-    fav_index = 1
+    fav_index = 0
     logger.info('Expected cluster: {}'.format(fav_index))
     fav_path = fav_paths[fav_index]
     act_fav_count, act_path_mtrx = collects.remove_item_from_matrix(fav_path, act_path_mtrx)

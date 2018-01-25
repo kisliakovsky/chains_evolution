@@ -4,11 +4,9 @@ from numpy import ndarray as NDArray
 
 from src import collects, clustering
 from src.clusters_info import calc_cluster_dist
-from src.evolution import ChildGenerator
 from src import pathways_generating as generation
 from src import pathways_processing as process
 import logging
-import random
 
 logger = logging.getLogger('main_logger')
 

@@ -27,7 +27,6 @@ def determine_cluster(path: str, centers: List[str]):
     return [i for i, dist in enumerate(dists) if dist == min_dist]
 
 
-
 def check_clusters(synt_dict: Dict[str, Dict[str, int]], centers: List[str]):
     all_count = 0
     correct_count = 0
@@ -104,20 +103,27 @@ def calc_number_of_paths_by_clusters(synt_paths, cluster_centers):
         for possible_cluster in possible_clusters:
             counters[possible_cluster] += 1 / (len(possible_clusters))
     return counters
-    # return [count / len(synt_paths) for count in counters]
 
 
-def print_quality_info(synt_paths, cluster_centers, fav_index):
+def print_pathways_info(synt_paths, cluster_centers, fav_idx):
     number_of_paths = len(synt_paths)
     logger.info('Number of synthetic pathways: {}'.format(len(synt_paths)))
     number_of_paths_by_clusters = calc_number_of_paths_by_clusters(synt_paths, cluster_centers)
     logger.info('Number of synthetic pathways by cluster: {}'.format(str(number_of_paths_by_clusters)))
     chances_of_paths_by_clusters = [count / number_of_paths for count in number_of_paths_by_clusters]
     logger.info('Chances of synthetic pathways by cluster: {}'.format(str(chances_of_paths_by_clusters)))
+
+
+def print_vertices_info(synt_paths, cluster_centers, fav_idx):
     synt_vertices = set(synt_paths)
     number_of_vertices = len(synt_vertices)
     logger.info('Number of synthetic vertices: {}'.format(number_of_vertices))
     number_of_vertices_by_clusters = calc_number_of_paths_by_clusters(synt_vertices, cluster_centers)
-    logger.info('Number of synthetic vertices by cluster: {}'.format(str(number_of_vertices_by_clusters)))
+    # logger.info('Number of synthetic vertices by cluster: {}'.format(str(number_of_vertices_by_clusters)))
     chances_of_vertices_by_clusters = [count / number_of_vertices for count in number_of_vertices_by_clusters]
-    logger.info('Chances of synthetic vertices by cluster: {}'.format(str(chances_of_vertices_by_clusters)))
+    logger.info('Chances of synthetic vertices by cluster: {}'.format(chances_of_vertices_by_clusters[fav_idx]))
+
+
+def print_quality_info(synt_paths, cluster_centers, fav_idx):
+    # print_pathways_info(synt_paths, cluster_centers, fav_idx)
+    print_vertices_info(synt_paths, cluster_centers, fav_idx)
