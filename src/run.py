@@ -2,7 +2,7 @@ from typing import List
 # noinspection PyPep8Naming
 from numpy import ndarray as NDArray
 
-from src import collects, clustering
+from src import clustering
 from src.clusters_info import calc_cluster_dist
 from src import pathways_generating as generation
 from src import pathways_processing as process
@@ -10,7 +10,11 @@ import logging
 
 logger = logging.getLogger('main_logger')
 
-SYNT_PATH_EXPECT_NUM = 750
+SYNT_PATH_EXPECT_NUM = 1000
+
+
+def str_len(s):
+    return len(s)
 
 
 class RunnerBuilder(object):
@@ -88,6 +92,14 @@ class RunnerBuilder(object):
         def run(self):
             cluster_dist = calc_cluster_dist(self.cluster_probs, SYNT_PATH_EXPECT_NUM)
             synt_path_mtrx = generation.collect_all_pathways_by_clusters(cluster_dist)
+            l = 7
+            set0 = [s for s in set(synt_path_mtrx[0])if len(s) == l]
+            set1 = [s for s in set(synt_path_mtrx[1])if len(s) == l]
+            set2 = [s for s in set(synt_path_mtrx[2])if len(s) == l]
+            set3 = [s for s in set(synt_path_mtrx[3])if len(s) == l]
+            set4 = [s for s in set(synt_path_mtrx[4])if len(s) == l]
+            set5 = [s for s in set(synt_path_mtrx[5])if len(s) == l]
+            set6 = [s for s in set(synt_path_mtrx[6])if len(s) == l]
             synt_paths = process.flatten_all_pathways_by_clusters(synt_path_mtrx)
             if self.fav_subpaths[-1] not in synt_paths:
                 logger.error('Not valid for estimation')
@@ -96,12 +108,12 @@ class RunnerBuilder(object):
             number_of_steps = len(self.fav_subpaths)
             intermediate_step_index = number_of_steps // 2
             last_step_index = number_of_steps - 1
-            clustering.print_quality_info(synt_paths, self.cluster_centers, self.fav_idx)
+            chance = clustering.get_chance(synt_paths, self.cluster_centers, self.fav_idx)
             for step_idx, fav_subpath in enumerate(self.fav_subpaths):
                 logger.info('Step {}/{}: {}'.format(step_idx, last_step_index, fav_subpath))
                 remained_paths, deleted_paths = process.filter_pathways(synt_paths, fav_subpath, step_idx == last_step_index)
                 synt_paths = generation.generate_new_pathways(remained_paths, len(synt_paths))
-                clustering.print_quality_info(synt_paths, self.cluster_centers, self.fav_idx)
+                chance = clustering.get_chance(synt_paths, self.cluster_centers, self.fav_idx)
 
     def build(self) -> '__Runner':
         args = (self.__idx, self.__fav_idx, self.__act_path_mtrx, self.__cluster_centers,

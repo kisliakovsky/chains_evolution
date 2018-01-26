@@ -4,18 +4,18 @@ import seaborn
 seaborn.set_style("whitegrid")
 import numpy
 
-CLUSTERS = [[0.235294118, 0.351648352, 0.463414634, 0.591549296, 0.734375, 0.804347826, 0.947368421, 1, 1, 1],
-            [0.18018018, 0.223404255, 0.285714286, 0.555555556, 0.75, 0.805555556, 0.928571429, 1, 1, 1],
-            [0.260416667, 0.356321839, 0.444444444, 0.524590164, 0.641509434, 0.818181818, 1, 1, 1, 1],
-            [0.227722772, 0.338709677, 0.395348837, 0.4, 0.5, 0.666666667, 0.666666667, 0.666666667, 1, 1],
-            [0.191919192, 0.229166667, 0.259259259, 0.322033898, 0.511627907, 0.64, 0.769230769, 0.75, 1, 1]]
+SUCCESS_CLUSTER_1 = [
+    [0.105079365, 0.137603306, 0.206060606, 0.258227848, 0.356557377, 0.800995025, 0.899305556, 1, 1, 1],
+    [0.108660131, 0.132936508, 0.151090343, 0.21803653, 0.236607143, 0.787634409, 0.903333333, 1, 1, 1],
+    [0.076923077, 0.112860892, 0.095098039, 0.15922619, 0.210992908, 0.697916667, 0.846491228, 1, 1, 1],
+    [0.127951389, 0.168715847, 0.214559387, 0.316964286, 0.393617021, 0.822530864, 0.944444444, 1, 1, 1],
+    [0.073863636, 0.107232704, 0.09, 0.140070922, 0.19212963, 0.808558559, 0.890151515, 1, 1, 1]]
 
-
-data = CLUSTERS
+data = SUCCESS_CLUSTER_1
 data = numpy.asarray(data) * 100
-gammas = seaborn.load_dataset('gammas')
-ax = seaborn.tsplot(data=gammas, ci=[95], time="timepoint", value="BOLD signal", unit="subject", condition="ROI")
-# ax.set_xlabel("step")
-# ax.set_ylabel("% synthetic pathways in correct cluster")
-
+data = seaborn.load_dataset("gammas")
+ax = seaborn.tsplot(data=data, ci=[95])
+ax.set_xlabel('step')
+ax.set_ylabel('% synthetic vertices in correct cluster')
+ax.set_title('Pathway {} (Cluster 1)'.format('XAFNIFEFIFEY'))
 pyplot.show()

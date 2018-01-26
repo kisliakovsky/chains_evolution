@@ -10,7 +10,7 @@ logger = logging.getLogger('main_logger')
 def get_cluster_centers(act_matrix: List[List[str]]) -> List[str]:
     centers = []
     for items in act_matrix:
-        dist_matrix = distances.calculate_distances(items)
+        dist_matrix = distances.calculate_nastya_distances(items)
         dists_sums = [sum(row) for row in dist_matrix]
         min_sum = min(dists_sums)
         possible_centers = []
@@ -121,9 +121,21 @@ def print_vertices_info(synt_paths, cluster_centers, fav_idx):
     number_of_vertices_by_clusters = calc_number_of_paths_by_clusters(synt_vertices, cluster_centers)
     # logger.info('Number of synthetic vertices by cluster: {}'.format(str(number_of_vertices_by_clusters)))
     chances_of_vertices_by_clusters = [count / number_of_vertices for count in number_of_vertices_by_clusters]
+    # maxVal = max(chances_of_vertices_by_clusters)
+    # idx = chances_of_vertices_by_clusters.index(maxVal)
     logger.info('Chances of synthetic vertices by cluster: {}'.format(chances_of_vertices_by_clusters[fav_idx]))
 
 
 def print_quality_info(synt_paths, cluster_centers, fav_idx):
     # print_pathways_info(synt_paths, cluster_centers, fav_idx)
     print_vertices_info(synt_paths, cluster_centers, fav_idx)
+
+
+def get_chance(synt_paths, cluster_centers, fav_idx):
+    synt_vertices = set(synt_paths)
+    number_of_vertices = len(synt_vertices)
+    logger.info('Number of synthetic vertices: {}'.format(number_of_vertices))
+    number_of_vertices_by_clusters = calc_number_of_paths_by_clusters(synt_vertices, cluster_centers)
+    chances_of_vertices_by_clusters = [count / number_of_vertices for count in number_of_vertices_by_clusters]
+    return chances_of_vertices_by_clusters[fav_idx]
+

@@ -3,7 +3,7 @@ from typing import Dict, List, Union, Tuple, Callable
 
 from pandas import DataFrame
 
-from src.distances import calculate_distances
+from src.distances import calculate_nastya_distances
 
 Element = Dict[str, Dict[str, str]]
 MAX_EDGE_WEIGHT = 3
@@ -104,7 +104,7 @@ def _create_edge_dataframe(sequences: List[str]):
 
 def _map_edge_components(sequences: List[str], handler: Callable[[str, str, int], None]):
     if len(sequences) > 1:
-        distances = calculate_distances(sequences)
+        distances = calculate_nastya_distances(sequences)
         number_of_rows = len(distances)
         number_of_columns = len(distances[0])
         for i in range(1, number_of_rows):
