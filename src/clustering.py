@@ -1,6 +1,5 @@
-from typing import List, Dict, Tuple
-
-import jellyfish
+from typing import List, Dict, Tuple, Union
+import math
 
 from src import distances
 import logging
@@ -15,85 +14,57 @@ def get_cluster_centers(act_matrix: List[List[str]]) -> List[str]:
         min_sum = min(dists_sums)
         possible_centers = []
         for i, s in enumerate(dists_sums):
-            if s == min_sum:
+            if math.isclose(s, min_sum, rel_tol=1e-5):
                 possible_centers.append(items[i])
         centers.append(possible_centers)
     return centers
 
 
-def determine_cluster(path: str, centers: List[str]):
-    dists = [distances.calculate_distance(path, center) for center in centers]
+def determine_cluster(vector: Dict[str, Union[str, List[int]]], centers: List[Dict[str, Union[str, int]]]):
+    dists = [distances.calculate_default_distance(vector['num'], center['num']) for center in centers]
+    # vector_len = len(vector)
+    # if vector_len == 4:
+    #     return [2]
+    # elif vector_len == 5:
+    #     possible_indices = [0, 2]
     min_dist = min(dists)
-    return [i for i, dist in enumerate(dists) if dist == min_dist]
+    return [i for i, dist in enumerate(dists) if math.isclose(dist, min_dist, rel_tol=1e-5)]
 
 
-def check_clusters(synt_dict: Dict[str, Dict[str, int]], centers: List[str]):
-    all_count = 0
-    correct_count = 0
-    incorrect_count = 0
-    error_counts = {
-        0: 0,
-        1: 0,
-        2: 0,
-        3: 0,
-        4: 0,
-        5: 0,
-        6: 0
-    }
-    for k, v in synt_dict.items():
-        v["dist"], v["min_dist"], v["new_idx"] = _check_cluster(v["idx"], k, centers)
-        if v["idx"] in v["new_idx"]:
-            correct_count += v["count"]
-        else:
-            incorrect_count += v["count"]
-            error_counts[v["idx"]] += v["count"]
-        all_count += v["count"]
-    for k in error_counts.keys():
-        error_counts[k] /= incorrect_count
-    return correct_count / all_count, error_counts
-
-
-def check_clusters2(synt_dict: Dict[str, Dict[str, int]], act_mtrx: List[List[str]]):
-    all_count = 0
-    correct_count = 0
-    incorrect_count = 0
-    error_counts = {
-        0: 0,
-        1: 0,
-        2: 0,
-        3: 0,
-        4: 0,
-        5: 0,
-        6: 0
-    }
-    for k, v in synt_dict.items():
-        v["dist2"], v["min_dist2"], v["new_idx2"] = _check_cluster2(v["idx"], k, act_mtrx)
-        if v["idx"] in v["new_idx2"]:
-            correct_count += v["count"]
-        else:
-            incorrect_count += v["count"]
-            error_counts[v["idx"]] += v["count"]
-        all_count += v["count"]
-    for k in error_counts.keys():
-        error_counts[k] /= incorrect_count
-    return correct_count / all_count, error_counts
-
-
-def _check_cluster(exp_idx: int, path: str, centers: List[str]) -> Tuple[int, int, List[int]]:
-    dists = [jellyfish.levenshtein_distance(path, center) for center in centers]
-    min_dist = min(dists)
-    exp_dist = dists[exp_idx]
-    return exp_dist, min_dist, [i for i, dist in enumerate(dists) if dist == min_dist]
-
-
-def _check_cluster2(exp_idx: int, path: str, act_mtrx: List[List[str]]) -> Tuple[int, int, List[int]]:
-    dists = []
-    for items in act_mtrx:
-        dist = min([jellyfish.levenshtein_distance(path, item) for item in items])
-        dists.append(dist)
-    min_dist = min(dists)
-    exp_dist = dists[exp_idx]
-    return exp_dist, min_dist, [i for i, dist in enumerate(dists) if dist == min_dist]
+# def check_clusters2(synt_dict: Dict[str, Dict[str, int]], act_mtrx: List[List[str]]):
+#     all_count = 0
+#     correct_count = 0
+#     incorrect_count = 0
+#     error_counts = {
+#         0: 0,
+#         1: 0,
+#         2: 0,
+#         3: 0,
+#         4: 0,
+#         5: 0,
+#         6: 0
+#     }
+#     for k, v in synt_dict.items():
+#         v["dist2"], v["min_dist2"], v["new_idx2"] = _check_cluster2(v["idx"], k, act_mtrx)
+#         if v["idx"] in v["new_idx2"]:
+#             correct_count += v["count"]
+#         else:
+#             incorrect_count += v["count"]
+#             error_counts[v["idx"]] += v["count"]
+#         all_count += v["count"]
+#     for k in error_counts.keys():
+#         error_counts[k] /= incorrect_count
+#     return correct_count / all_count, error_counts
+#
+#
+# def _check_cluster2(exp_idx: int, path: str, act_mtrx: List[List[str]]) -> Tuple[int, int, List[int]]:
+#     dists = []
+#     for items in act_mtrx:
+#         dist = min([jellyfish.levenshtein_distance(path, item) for item in items])
+#         dists.append(dist)
+#     min_dist = min(dists)
+#     exp_dist = dists[exp_idx]
+#     return exp_dist, min_dist, [i for i, dist in enumerate(dists) if dist == min_dist]
 
 
 def calc_number_of_paths_by_clusters(synt_paths, cluster_centers):

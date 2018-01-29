@@ -1,9 +1,10 @@
-from typing import List, Set, Iterable, Tuple
+from typing import List, Set, Iterable, Tuple, Dict, Union
 import random
 
 import jellyfish
 
 from src.pathways_generating import Pathway
+from src import distances
 
 
 def remove_repetitive_pathways(all_pathways: List[Pathway]) -> Set[Pathway]:
@@ -26,16 +27,21 @@ def flatten_all_pathways_by_clusters(all_pathways_by_clusters: List[List[Pathway
     return pathways
 
 
-def select_favorite_pathway(actual_pathways: List[Pathway], synthetic_pathways: List[Pathway]):
-    all_min_distances = []
-    for synthetic_pathway in synthetic_pathways:
-        synthetic_pathway_distances = []
-        for actual_pathway in actual_pathways:
-            distance = jellyfish.levenshtein_distance(synthetic_pathway, actual_pathway)
-            synthetic_pathway_distances.append(distance)
-        all_min_distances.append(min(synthetic_pathway_distances))
-    index = random.randrange(0, len(all_min_distances))
-    return synthetic_pathways[index]
+def convert_path_to_vector(str_vector: str, act_paths: List[str]) -> Dict[str, Union[str, List[int]]]:
+    num_vector = []
+    for act_path in act_paths:
+        dist = jellyfish.levenshtein_distance(str_vector, act_path)
+        num_vector.append(dist)
+    return {'str': str_vector, 'num': num_vector}
+
+
+def convert_paths_to_vectors(str_vectors: Iterable[str], actual_paths_by_clusters: List[List[str]]) -> List[Dict[str, Union[str, List[int]]]]:
+    vectors = []
+    act_paths = flatten_all_pathways_by_clusters(actual_paths_by_clusters)
+    for str_vector in str_vectors:
+        vector = convert_path_to_vector(str_vector, act_paths)
+        vectors.append(vector)
+    return vectors
 
 
 def filter_pathways(pathways: Iterable[Pathway], subpathway: Pathway, is_last: bool) -> Tuple[List[Pathway], List[Pathway]]:

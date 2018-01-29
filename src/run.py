@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union, Dict
 # noinspection PyPep8Naming
 from numpy import ndarray as NDArray
 
@@ -10,7 +10,7 @@ import logging
 
 logger = logging.getLogger('main_logger')
 
-SYNT_PATH_EXPECT_NUM = 1000
+SYNT_PATH_EXPECT_NUM = 10000
 
 
 def str_len(s):
@@ -37,7 +37,7 @@ class RunnerBuilder(object):
     def set_act_path_mtrx(self, act_path_mtrx: List[List[str]]):
         self.__act_path_mtrx = act_path_mtrx
 
-    def set_cluster_centers(self, cluster_centers: List[str]):
+    def set_cluster_centers(self, cluster_centers: List[Dict[str, Union[str, int]]]):
         self.__cluster_centers = cluster_centers
 
     def set_cluster_probs(self, cluster_probs: NDArray):
@@ -51,7 +51,8 @@ class RunnerBuilder(object):
 
     class __Runner(object):
 
-        def __init__(self, idx: int, fav_idx: int, act_path_mtrx: List[List[str]], cluster_centers: List[str],
+        def __init__(self, idx: int, fav_idx: int, act_path_mtrx: List[List[str]],
+                     cluster_centers: List[Dict[str, Union[str, int]]],
                      cluster_probs: NDArray, fav_subpaths: List[str], act_fav_count: int):
             self.__idx = idx
             self.__fav_idx = fav_idx
@@ -74,7 +75,7 @@ class RunnerBuilder(object):
             return self.__act_path_mtrx
 
         @property
-        def cluster_centers(self) -> List[str]:
+        def cluster_centers(self) -> List[Dict[str, Union[str, int]]]:
             return self.__cluster_centers
 
         @property
@@ -92,14 +93,13 @@ class RunnerBuilder(object):
         def run(self):
             cluster_dist = calc_cluster_dist(self.cluster_probs, SYNT_PATH_EXPECT_NUM)
             synt_path_mtrx = generation.collect_all_pathways_by_clusters(cluster_dist)
-            l = 7
-            set0 = [s for s in set(synt_path_mtrx[0])if len(s) == l]
-            set1 = [s for s in set(synt_path_mtrx[1])if len(s) == l]
-            set2 = [s for s in set(synt_path_mtrx[2])if len(s) == l]
-            set3 = [s for s in set(synt_path_mtrx[3])if len(s) == l]
-            set4 = [s for s in set(synt_path_mtrx[4])if len(s) == l]
-            set5 = [s for s in set(synt_path_mtrx[5])if len(s) == l]
-            set6 = [s for s in set(synt_path_mtrx[6])if len(s) == l]
+            set0 = [len(s) for s in sorted(set(synt_path_mtrx[0]), key=len)]
+            set1 = [len(s) for s in sorted(set(synt_path_mtrx[1]), key=len)]
+            set2 = [len(s) for s in sorted(set(synt_path_mtrx[2]), key=len)]
+            set3 = [len(s) for s in sorted(set(synt_path_mtrx[3]), key=len)]
+            set4 = [len(s) for s in sorted(set(synt_path_mtrx[4]), key=len)]
+            set5 = [len(s) for s in sorted(set(synt_path_mtrx[5]), key=len)]
+            set6 = [len(s) for s in sorted(set(synt_path_mtrx[6]), key=len)]
             synt_paths = process.flatten_all_pathways_by_clusters(synt_path_mtrx)
             if self.fav_subpaths[-1] not in synt_paths:
                 logger.error('Not valid for estimation')

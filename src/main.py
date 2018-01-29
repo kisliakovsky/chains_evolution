@@ -5,7 +5,7 @@ import logging
 from src import evolution, collects, clustering
 from src.clusters_info import get_act_path_mtrx, get_cluster_probs
 from src.run import RunnerBuilder
-
+from src import pathways_processing as process
 
 MESSAGE_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 # MESSAGE_FORMAT = "%(message)s"
@@ -32,34 +32,37 @@ DELETED_PATHWAYS_KEY = "deleted"
 
 def main():
     act_path_mtrx = get_act_path_mtrx()
-    res = clustering.get_cluster_centers(act_path_mtrx)
-    cluster_centers = ['XAFINFEY', 'XAFNIFEFIFEFY', 'XAFEY', 'XAFNIFEDY', 'XAFNIFEY', 'XAFIFEY', 'XAFNIEIFEY']
-    cluster_centers = []
+    cluster_centers = ['XAFINFEY', 'XAFNIFEFIFEFY', 'XAFIY', 'XAFNIFEDY', 'XAFNIFEY', 'XAFIFEY', 'XAFENIFIFEY'] # squared euclid center
+    cluster_centers = process.convert_paths_to_vectors(cluster_centers, act_path_mtrx)
     # length 7
-    # fav_paths = ['XAFNFDY', '', '', '', 'XAFEIEY', 'XY', 'XY']
-    # fav_paths = ['XAFIFDY', '', '', '', 'XY', 'XY', 'XY']
+    # fav_paths = ['XAFEIEY', '', 'XAFEFDY', '', 'XAFNIFY', 'XAFNFEY', '']
+    # fav_paths = ['XAFEIEY', '', 'XANFEDY', '', 'XAFNIFY', 'XAFIFEY', '']
+    # fav_paths = ['XAFEIEY', '', 'XAFNFEY', '', 'XAFNIEY', 'XANIFEY', '']
+    # length 8
+    # fav_paths = ['XAFNFIFY', '', 'XAFEFEDY', 'XAFNFEDY', 'XAFNIFEY', 'XAFNIFEY', 'XAFEFEFY']
+    # fav_paths = ['XAINFEDY', '', 'XAFEFEDY', 'XANIFEDY', 'XAFNIFEY', 'XAFNIFEY', 'XAFEFEDY']
+    # length 9
+    # fav_paths = ['XANIFNFEY', '', '', 'XANIFEFDY', 'XAFENEIFY', '', 'XAFIFEFEY']
+    fav_paths = ['XANIFIFEY', '', '', 'XANINFEDY', 'XAFNINFEY', '', 'XAFIFEIFY']
     # for i, fav_path in enumerate(fav_paths):
-    #     logger.info('{}: {}'.format(i, clustering.determine_cluster(fav_path, cluster_centers)))
-    # for fav_index, fav_path in enumerate(fav_paths):
-    #     act_path_mtrx = get_act_path_mtrx()
-    #     logger.info('Pathway: {}'.format(fav_path))
-    #     logger.info('Expected cluster: {}'.format(fav_index))
-    #     act_fav_count, act_path_mtrx = collects.remove_item_from_matrix(fav_path, act_path_mtrx)
-    #     fav_subpaths = evolution.get_evo_subsequences(fav_path)
-    #     cluster_probs = get_cluster_probs()
-    #     for i in range(10):
-    #         logger.info('')
-    #         logger.info('Run {}'.format(i))
-    #         builder = RunnerBuilder()
-    #         builder.set_idx(i)
-    #         builder.set_fav_idx(fav_index)
-    #         builder.set_act_path_mtrx(act_path_mtrx)
-    #         builder.set_cluster_centers(cluster_centers)
-    #         builder.set_cluster_probs(cluster_probs)
-    #         builder.set_fav_subpaths(fav_subpaths)
-    #         builder.set_act_fav_count(act_fav_count)
-    #         runner = builder.build()
-    #         runner.run()
+    #     vector = process.convert_path_to_vector(fav_path, process.flatten_all_pathways_by_clusters(act_path_mtrx))
+    #     logger.info('{}: {}'.format(i, clustering.determine_cluster(vector, cluster_centers)))
+    for fav_index, fav_path in enumerate(fav_paths):
+        act_path_mtrx = get_act_path_mtrx()
+        fav_subpaths = evolution.get_evo_subsequences(fav_path)
+        cluster_probs = get_cluster_probs()
+        for i in range(10):
+            logger.info('')
+            logger.info('Run {}'.format(i))
+            builder = RunnerBuilder()
+            builder.set_idx(i)
+            builder.set_fav_idx(fav_index)
+            builder.set_act_path_mtrx(act_path_mtrx)
+            builder.set_cluster_centers(cluster_centers)
+            builder.set_cluster_probs(cluster_probs)
+            builder.set_fav_subpaths(fav_subpaths)
+            runner = builder.build()
+            runner.run()
 
 
 if __name__ == '__main__':
