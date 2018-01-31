@@ -22,13 +22,31 @@ def get_cluster_centers(act_matrix: List[List[str]]) -> List[str]:
 
 def determine_cluster(vector: Dict[str, Union[str, List[int]]], centers: List[Dict[str, Union[str, int]]]):
     dists = [distances.calculate_default_distance(vector['num'], center['num']) for center in centers]
-    # vector_len = len(vector)
-    # if vector_len == 4:
-    #     return [2]
-    # elif vector_len == 5:
-    #     possible_indices = [0, 2]
-    min_dist = min(dists)
-    return [i for i, dist in enumerate(dists) if math.isclose(dist, min_dist, rel_tol=1e-5)]
+    vector_len = len(vector['str'])
+    possible_indices = [i for i, dist in enumerate(dists)]
+    if vector_len < 4:
+        possible_indices = [2]
+    elif vector_len == 4:
+        possible_indices = [0, 2]
+    elif vector_len == 5:
+        possible_indices = [0, 2, 6]
+    elif vector_len == 6:
+        possible_indices = [0, 2, 3, 4, 5, 6]
+    elif 6 < vector_len < 9:
+        pass
+    elif vector_len == 9:
+        possible_indices = [0, 1, 2, 3, 4, 6]
+    elif 9 < vector_len < 13:
+        possible_indices = [0, 1, 3, 4, 6]
+    elif vector_len == 13:
+        possible_indices = [1, 3, 6]
+    elif 13 < vector_len < 17:
+        possible_indices = [1, 6]
+    elif vector_len >= 17:
+        possible_indices = [1]
+    possible_dists = [dist for i, dist in enumerate(dists) if i in possible_indices]
+    min_dist = min(possible_dists)
+    return [possible_indices[i] for i, dist in enumerate(possible_dists) if math.isclose(dist, min_dist, rel_tol=1e-5)]
 
 
 # def check_clusters2(synt_dict: Dict[str, Dict[str, int]], act_mtrx: List[List[str]]):

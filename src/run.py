@@ -93,13 +93,6 @@ class RunnerBuilder(object):
         def run(self):
             cluster_dist = calc_cluster_dist(self.cluster_probs, SYNT_PATH_EXPECT_NUM)
             synt_path_mtrx = generation.collect_all_pathways_by_clusters(cluster_dist)
-            set0 = [len(s) for s in sorted(set(synt_path_mtrx[0]), key=len)]
-            set1 = [len(s) for s in sorted(set(synt_path_mtrx[1]), key=len)]
-            set2 = [len(s) for s in sorted(set(synt_path_mtrx[2]), key=len)]
-            set3 = [len(s) for s in sorted(set(synt_path_mtrx[3]), key=len)]
-            set4 = [len(s) for s in sorted(set(synt_path_mtrx[4]), key=len)]
-            set5 = [len(s) for s in sorted(set(synt_path_mtrx[5]), key=len)]
-            set6 = [len(s) for s in sorted(set(synt_path_mtrx[6]), key=len)]
             synt_paths = process.flatten_all_pathways_by_clusters(synt_path_mtrx)
             if self.fav_subpaths[-1] not in synt_paths:
                 logger.error('Not valid for estimation')
