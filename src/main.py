@@ -68,6 +68,7 @@ def main():
                 builder.set_fav_subpaths(fav_subpaths)
                 runner = builder.build()
                 runner.run()
+                # TODO: Insert statistics collecting here
 
 
 if __name__ == '__main__':
