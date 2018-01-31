@@ -5,7 +5,8 @@ import numpy
 
 def calculate_nastya_distances(vectors):
     vectors = calculate_levenshtein_distances(vectors)
-    return calculate_default_distances(vectors)
+    vectors = calculate_default_distances(vectors)
+    return vectors
 
 
 def calculate_euclid_distances(vectors):

@@ -34,35 +34,40 @@ def main():
     act_path_mtrx = get_act_path_mtrx()
     cluster_centers = ['XAFINFEY', 'XAFNIFEFIFEFY', 'XAFIY', 'XAFNIFEDY', 'XAFNIFEY', 'XAFIFEY', 'XAFENIFIFEY'] # squared euclid center
     cluster_centers = process.convert_paths_to_vectors(cluster_centers, act_path_mtrx)
-    # length 7
-    # fav_paths = ['XAFEIEY', '', 'XAFEFDY', '', 'XAFNIFY', 'XAFNFEY', '']
-    # fav_paths = ['XAFEIEY', '', 'XANFEDY', '', 'XAFNIFY', 'XAFIFEY', '']
-    # fav_paths = ['XAFEIEY', '', 'XAFNFEY', '', 'XAFNIEY', 'XANIFEY', '']
-    # length 8
-    # fav_paths = ['XAFNFIFY', '', 'XAFEFEDY', 'XAFNFEDY', 'XAFNIFEY', 'XAFNIFEY', 'XAFEFEFY']
-    # fav_paths = ['XAINFEDY', '', 'XAFEFEDY', 'XANIFEDY', 'XAFNIFEY', 'XAFNIFEY', 'XAFEFEDY']
-    # length 9
-    # fav_paths = ['XANIFNFEY', '', '', 'XANIFEFDY', 'XAFENEIFY', '', 'XAFIFEFEY']
-    fav_paths = ['XANIFIFEY', '', '', 'XANINFEDY', 'XAFNINFEY', '', 'XAFIFEIFY']
-    # for i, fav_path in enumerate(fav_paths):
-    #     vector = process.convert_path_to_vector(fav_path, process.flatten_all_pathways_by_clusters(act_path_mtrx))
-    #     logger.info('{}: {}'.format(i, clustering.determine_cluster(vector, cluster_centers)))
-    for fav_index, fav_path in enumerate(fav_paths):
-        act_path_mtrx = get_act_path_mtrx()
-        fav_subpaths = evolution.get_evo_subsequences(fav_path)
-        cluster_probs = get_cluster_probs()
-        for i in range(10):
-            logger.info('')
-            logger.info('Run {}'.format(i))
-            builder = RunnerBuilder()
-            builder.set_idx(i)
-            builder.set_fav_idx(fav_index)
-            builder.set_act_path_mtrx(act_path_mtrx)
-            builder.set_cluster_centers(cluster_centers)
-            builder.set_cluster_probs(cluster_probs)
-            builder.set_fav_subpaths(fav_subpaths)
-            runner = builder.build()
-            runner.run()
+    fav_paths = ['XAFINFEY', 'XAFNIFEFIFEFY', 'XAFIY', 'XAFNIFEDY', 'XAFNIFEY', 'XAFIFEY', 'XAFENIFIFEY']
+    # group 0; cluster 0, 2, 5; length 7
+    fav_paths = {
+        0: ['XAFEIEY', 'XAFIFDY', 'XAFNFDY'],
+        2: ['XAFEFDY', 'XAFEIDY', 'XAFIEDY'],
+        5: ['XAFIFEY', 'XAFNFEY', 'XANIFEY']
+    }
+    # group 1; cluster 3, 4; length 9
+    # fav_paths = {
+    #     3: ['XAFENIEDY', 'XAFNEFEDY', 'XAFNFEFDY'],
+    #     4: ['XAFNFIFEY']  # cluster 4
+    # }
+    # group 2; cluster 1, 6; length 12
+    # fav_paths = {
+    #     1: ['XAEFIFEFIFDY', 'XAEFIFEFIFEY', 'XAFNIFENEIEY'],
+    #     6: ['XAFENEFIFEDY', 'XAFENEIFEIEY', 'XAFNEIFEIFDY']
+    # }
+    for fav_index, fav_paths in fav_paths.items():
+        for fav_path in fav_paths:
+            act_path_mtrx = get_act_path_mtrx()
+            fav_subpaths = evolution.get_evo_subsequences(fav_path)
+            cluster_probs = get_cluster_probs()
+            for i in range(10):
+                logger.info('')
+                logger.info('Run {}'.format(i))
+                builder = RunnerBuilder()
+                builder.set_idx(i)
+                builder.set_fav_idx(fav_index)
+                builder.set_act_path_mtrx(act_path_mtrx)
+                builder.set_cluster_centers(cluster_centers)
+                builder.set_cluster_probs(cluster_probs)
+                builder.set_fav_subpaths(fav_subpaths)
+                runner = builder.build()
+                runner.run()
 
 
 if __name__ == '__main__':
