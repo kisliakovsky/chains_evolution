@@ -1,4 +1,4 @@
-from typing import List, Union, Dict
+from typing import List, Union, Dict, Any
 # noinspection PyPep8Naming
 from numpy import ndarray as NDArray
 
@@ -27,6 +27,7 @@ class RunnerBuilder(object):
         self.__cluster_probs = None
         self.__fav_subpaths = None
         self.__act_fav_count = None
+        self.__statistics = None
 
     def set_idx(self, idx: int):
         self.__idx = idx
@@ -49,11 +50,15 @@ class RunnerBuilder(object):
     def set_act_fav_count(self, act_fav_count: int):
         self.__act_fav_count = act_fav_count
 
+    def set_statistics(self, statistics: Dict[int, List[Any]]):
+        self.__statistics = statistics
+
     class __Runner(object):
 
         def __init__(self, idx: int, fav_idx: int, act_path_mtrx: List[List[str]],
                      cluster_centers: List[Dict[str, Union[str, int]]],
-                     cluster_probs: NDArray, fav_subpaths: List[str], act_fav_count: int):
+                     cluster_probs: NDArray, fav_subpaths: List[str], act_fav_count: int,
+                     statistics: Dict[int, List[Any]]):
             self.__idx = idx
             self.__fav_idx = fav_idx
             self.__act_path_mtrx = act_path_mtrx
@@ -61,6 +66,7 @@ class RunnerBuilder(object):
             self.__cluster_probs = cluster_probs
             self.__fav_subpaths = fav_subpaths
             self.__act_fav_count = act_fav_count
+            self.__statistics = statistics
 
         @property
         def idx(self) -> int:
@@ -90,12 +96,13 @@ class RunnerBuilder(object):
         def act_fav_count(self) -> int:
             return self.__act_fav_count
 
+        @property
+        def statistics(self) -> Dict[int, List[Any]]:
+            return self.__statistics
+
         def run(self):
             cluster_dist = calc_cluster_dist(self.cluster_probs, SYNT_PATH_EXPECT_NUM)
             synt_path_mtrx = generation.collect_all_pathways_by_clusters(cluster_dist)
-            l = 12
-            set1 = [p for p in sorted(sorted(set(synt_path_mtrx[1])), key=len) if len(p) == l]
-            set6 = [p for p in sorted(sorted(set(synt_path_mtrx[6])), key=len) if len(p) == l]
             synt_paths = process.flatten_all_pathways_by_clusters(synt_path_mtrx)
             if self.fav_subpaths[-1] not in synt_paths:
                 logger.error('Not valid for estimation')
@@ -104,12 +111,12 @@ class RunnerBuilder(object):
             number_of_steps = len(self.fav_subpaths)
             intermediate_step_index = number_of_steps // 2
             last_step_index = number_of_steps - 1
-            chance = clustering.get_chance(synt_paths, self.cluster_centers, self.fav_idx)
             for step_idx, fav_subpath in enumerate(self.fav_subpaths):
                 logger.info('Step {}/{}: {}'.format(step_idx, last_step_index, fav_subpath))
                 remained_paths, deleted_paths = process.filter_pathways(synt_paths, fav_subpath, step_idx == last_step_index)
                 synt_paths = generation.generate_new_pathways(remained_paths, len(synt_paths))
                 chance = clustering.get_chance(synt_paths, self.cluster_centers, self.fav_idx)
+                self.statistics[step_idx].append(chance)
 
     def build(self) -> '__Runner':
         args = (self.__idx, self.__fav_idx, self.__act_path_mtrx, self.__cluster_centers,

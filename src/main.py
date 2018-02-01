@@ -56,6 +56,9 @@ def main():
             act_path_mtrx = get_act_path_mtrx()
             fav_subpaths = evolution.get_evo_subsequences(fav_path)
             cluster_probs = get_cluster_probs()
+            statistics = {}
+            for i, _ in enumerate(fav_subpaths):
+                statistics[i] = []
             for i in range(10):
                 logger.info('')
                 logger.info('Run {}'.format(i))
