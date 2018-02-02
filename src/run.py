@@ -10,7 +10,7 @@ import logging
 
 logger = logging.getLogger('main_logger')
 
-SYNT_PATH_EXPECT_NUM = 10000
+SYNT_PATH_EXPECT_NUM = 750
 
 
 def str_len(s):
@@ -115,12 +115,13 @@ class RunnerBuilder(object):
                 logger.info('Step {}/{}: {}'.format(step_idx, last_step_index, fav_subpath))
                 remained_paths, deleted_paths = process.filter_pathways(synt_paths, fav_subpath, step_idx == last_step_index)
                 synt_paths = generation.generate_new_pathways(remained_paths, len(synt_paths))
-                chance = clustering.get_chance(synt_paths, self.cluster_centers, self.fav_idx)
-                self.statistics[step_idx].append(chance)
+                chance = clustering.get_chance(synt_paths, self.act_path_mtrx, self.cluster_centers, self.fav_idx)
+                self.statistics[self.fav_idx][step_idx].append(chance)
+                pass
 
     def build(self) -> '__Runner':
         args = (self.__idx, self.__fav_idx, self.__act_path_mtrx, self.__cluster_centers,
-                self.__cluster_probs, self.__fav_subpaths, self.__act_fav_count)
+                self.__cluster_probs, self.__fav_subpaths, self.__act_fav_count, self.__statistics)
         return RunnerBuilder.__Runner(*args)
 
 

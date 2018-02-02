@@ -52,13 +52,13 @@ def main():
     #     6: ['XAFENEFIFEDY', 'XAFENEIFEIEY', 'XAFNEIFEIFDY']
     # }
     for fav_index, fav_paths in fav_paths.items():
+        statistics = {fav_index: {}}
         for fav_path in fav_paths:
             act_path_mtrx = get_act_path_mtrx()
             fav_subpaths = evolution.get_evo_subsequences(fav_path)
             cluster_probs = get_cluster_probs()
-            statistics = {}
             for i, _ in enumerate(fav_subpaths):
-                statistics[i] = []
+                statistics[fav_index][i] = []
             for i in range(10):
                 logger.info('')
                 logger.info('Run {}'.format(i))
@@ -69,9 +69,11 @@ def main():
                 builder.set_cluster_centers(cluster_centers)
                 builder.set_cluster_probs(cluster_probs)
                 builder.set_fav_subpaths(fav_subpaths)
+                builder.set_statistics(statistics)
                 runner = builder.build()
                 runner.run()
                 # TODO: Insert statistics collecting here
+                pass
 
 
 if __name__ == '__main__':

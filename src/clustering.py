@@ -1,7 +1,7 @@
 from typing import List, Dict, Tuple, Union
 import math
 
-from src import distances
+from src import distances, pathways_processing as process
 import logging
 logger = logging.getLogger('main_logger')
 
@@ -120,11 +120,12 @@ def print_quality_info(synt_paths, cluster_centers, fav_idx):
     print_vertices_info(synt_paths, cluster_centers, fav_idx)
 
 
-def get_chance(synt_paths, cluster_centers, fav_idx):
+def get_chance(synt_paths, act_path_mtrx, cluster_centers, fav_idx):
     synt_vertices = set(synt_paths)
+    synt_vectors = process.convert_paths_to_vectors(synt_vertices, act_path_mtrx)
     number_of_vertices = len(synt_vertices)
     logger.info('Number of synthetic vertices: {}'.format(number_of_vertices))
-    number_of_vertices_by_clusters = calc_number_of_paths_by_clusters(synt_vertices, cluster_centers)
+    number_of_vertices_by_clusters = calc_number_of_paths_by_clusters(synt_vectors, cluster_centers)
     chances_of_vertices_by_clusters = [count / number_of_vertices for count in number_of_vertices_by_clusters]
     return chances_of_vertices_by_clusters[fav_idx]
 
