@@ -1,5 +1,7 @@
-from typing import List, Dict, Tuple, Union
+from typing import List, Dict, Union
 import math
+
+import numpy
 
 from src import distances, pathways_processing as process
 import logging
@@ -47,6 +49,10 @@ def determine_cluster(vector: Dict[str, Union[str, List[int]]], centers: List[Di
     possible_dists = [dist for i, dist in enumerate(dists) if i in possible_indices]
     min_dist = min(possible_dists)
     return [possible_indices[i] for i, dist in enumerate(possible_dists) if math.isclose(dist, min_dist, rel_tol=1e-5)]
+
+
+def calc_dist_to_cluster(vector, center):
+    return distances.calculate_default_distance(vector['num'], center['num'])
 
 
 # def check_clusters2(synt_dict: Dict[str, Dict[str, int]], act_mtrx: List[List[str]]):
@@ -129,3 +135,11 @@ def get_chance(synt_paths, act_path_mtrx, cluster_centers, fav_idx):
     chances_of_vertices_by_clusters = [count / number_of_vertices for count in number_of_vertices_by_clusters]
     return chances_of_vertices_by_clusters[fav_idx]
 
+
+def get_dist(synt_paths, act_path_mtrx, cluster_centers, fav_idx):
+    center = cluster_centers[fav_idx]
+    synt_vertices = set(synt_paths)
+    synt_vectors = process.convert_paths_to_vectors(synt_vertices, act_path_mtrx)
+    number_of_vertices = len(synt_vertices)
+    logger.info('Number of synthetic vertices: {}'.format(number_of_vertices))
+    return numpy.mean([calc_dist_to_cluster(synt_vector, center) for synt_vector in synt_vectors])

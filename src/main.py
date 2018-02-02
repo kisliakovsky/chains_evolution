@@ -40,24 +40,20 @@ def main():
     # group 1; cluster 3, 4; length 9
     # group 2; cluster 1, 6; length 12
     groups = [
+        # {
+        #     0: ['XAFEIEY', 'XAFIFDY', 'XAFNFDY'],
+        #     2: ['XAFEFDY', 'XAFEIDY', 'XAFIEDY'],
+        #     5: ['XAFIFEY', 'XAFNFEY', 'XANIFEY']
+        # },
+        # {
+        #     3: ['XAFENIEDY', 'XAFNEFEDY', 'XAFNFEFDY'],
+        #     4: ['XAFNFIFEY']
+        # },
         {
-            0: ['XAFEIEY', 'XAFIFDY', 'XAFNFDY'],
-            2: ['XAFEFDY', 'XAFEIDY', 'XAFIEDY'],
-            5: ['XAFIFEY', 'XAFNFEY', 'XANIFEY']
-        },
-        {
-            3: ['XAFENIEDY', 'XAFNEFEDY', 'XAFNFEFDY'],
-            4: ['XAFNFIFEY']
-        },
-        {
-            1: ['XAEFIFEFIFDY', 'XAFNINFNIFEY', 'XAFNIFENEIEY'],
-            6: ['XAFENEFIFEDY', 'XAFENEIFEIEY', 'XAFNINFIFEDY']
+            1: ['XAFNINFNIFEY', 'XAEFIFEFIFDY', 'XAFNINFNIFEY'],
+            6: ['XAFENFIFEFDY', 'XAFNINFIFEDY', 'XAFENEIFEIEY']
         }
     ]
-    # test = {
-    #     1: ['XAFNINFNIFEY'],
-    #     6: ['XAFNINFIFEDY', 'XAFNINFEIFEY', 'XAFENFIFEFDY', 'XANINFNIFEFY', 'XAFNFIFEFIEY', 'XAFNINFENFEY']
-    # }
     for group_idx, group in enumerate(groups):
         statistics = {}
         for fav_index, fav_paths in group.items():
@@ -104,7 +100,7 @@ def main():
             'run': runs_or_paths,
             'chance': chances
         })
-        seaborn.tsplot(time='step', value='chance', unit='run', condition='cluster', data=df, ci=[95])
+        ax = seaborn.tsplot(time='step', value='chance', unit='run', condition='cluster', data=df, ci=[95])
         chart_exporting.save_chart(group_idx)
 
 
