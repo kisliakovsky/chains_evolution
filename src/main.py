@@ -2,10 +2,13 @@
 
 import logging
 
-from src import evolution, collects, clustering
+from pandas import DataFrame
+import seaborn
+
+from src import evolution, pathways_processing as process, paths
 from src.clusters_info import get_act_path_mtrx, get_cluster_probs
 from src.run import RunnerBuilder
-from src import pathways_processing as process
+from src import chart_exporting
 
 MESSAGE_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 # MESSAGE_FORMAT = "%(message)s"
@@ -19,7 +22,6 @@ logger = logging.getLogger('main_logger')
 logger.setLevel(logging.INFO)
 logger.addHandler(console_handler)
 
-SYNT_PATH_EXPECT_NUM = 100
 ACTUAL_PATHWAYS_KEY = "actual"
 FAVORITE_PATHWAY_KEY = "favorite"
 
@@ -34,46 +36,76 @@ def main():
     act_path_mtrx = get_act_path_mtrx()
     cluster_centers = ['XAFINFEY', 'XAFNIFEFIFEFY', 'XAFIY', 'XAFNIFEDY', 'XAFNIFEY', 'XAFIFEY', 'XAFENIFIFEY'] # squared euclid center
     cluster_centers = process.convert_paths_to_vectors(cluster_centers, act_path_mtrx)
-    fav_paths = ['XAFINFEY', 'XAFNIFEFIFEFY', 'XAFIY', 'XAFNIFEDY', 'XAFNIFEY', 'XAFIFEY', 'XAFENIFIFEY']
     # group 0; cluster 0, 2, 5; length 7
-    fav_paths = {
-        0: ['XAFEIEY', 'XAFIFDY', 'XAFNFDY'],
-        2: ['XAFEFDY', 'XAFEIDY', 'XAFIEDY'],
-        5: ['XAFIFEY', 'XAFNFEY', 'XANIFEY']
-    }
     # group 1; cluster 3, 4; length 9
-    # fav_paths = {
-    #     3: ['XAFENIEDY', 'XAFNEFEDY', 'XAFNFEFDY'],
-    #     4: ['XAFNFIFEY']  # cluster 4
-    # }
     # group 2; cluster 1, 6; length 12
-    # fav_paths = {
-    #     1: ['XAEFIFEFIFDY', 'XAEFIFEFIFEY', 'XAFNIFENEIEY'],
-    #     6: ['XAFENEFIFEDY', 'XAFENEIFEIEY', 'XAFNEIFEIFDY']
+    groups = [
+        {
+            0: ['XAFEIEY', 'XAFIFDY', 'XAFNFDY'],
+            2: ['XAFEFDY', 'XAFEIDY', 'XAFIEDY'],
+            5: ['XAFIFEY', 'XAFNFEY', 'XANIFEY']
+        },
+        {
+            3: ['XAFENIEDY', 'XAFNEFEDY', 'XAFNFEFDY'],
+            4: ['XAFNFIFEY']
+        },
+        {
+            1: ['XAEFIFEFIFDY', 'XAFNINFNIFEY', 'XAFNIFENEIEY'],
+            6: ['XAFENEFIFEDY', 'XAFENEIFEIEY', 'XAFNINFIFEDY']
+        }
+    ]
+    # test = {
+    #     1: ['XAFNINFNIFEY'],
+    #     6: ['XAFNINFIFEDY', 'XAFNINFEIFEY', 'XAFENFIFEFDY', 'XANINFNIFEFY', 'XAFNFIFEFIEY', 'XAFNINFENFEY']
     # }
-    for fav_index, fav_paths in fav_paths.items():
-        statistics = {fav_index: {}}
-        for fav_path in fav_paths:
-            act_path_mtrx = get_act_path_mtrx()
-            fav_subpaths = evolution.get_evo_subsequences(fav_path)
-            cluster_probs = get_cluster_probs()
-            for i, _ in enumerate(fav_subpaths):
-                statistics[fav_index][i] = []
-            for i in range(10):
-                logger.info('')
-                logger.info('Run {}'.format(i))
-                builder = RunnerBuilder()
-                builder.set_idx(i)
-                builder.set_fav_idx(fav_index)
-                builder.set_act_path_mtrx(act_path_mtrx)
-                builder.set_cluster_centers(cluster_centers)
-                builder.set_cluster_probs(cluster_probs)
-                builder.set_fav_subpaths(fav_subpaths)
-                builder.set_statistics(statistics)
-                runner = builder.build()
-                runner.run()
-                # TODO: Insert statistics collecting here
-                pass
+    for group_idx, group in enumerate(groups):
+        statistics = {}
+        for fav_index, fav_paths in group.items():
+            statistics[fav_index] = {}
+            for fav_path_idx, fav_path in enumerate(fav_paths):
+                act_path_mtrx = get_act_path_mtrx()
+                fav_subpaths = evolution.get_evo_subsequences(fav_path)
+                cluster_probs = get_cluster_probs()
+                for i, _ in enumerate(fav_subpaths):
+                    statistics[fav_index][i] = []
+                successful_runs = 0
+                while successful_runs < 5:
+                    logger.info('')
+                    logger.info('Fav index {}'.format(fav_index))
+                    logger.info('Fav path index {}'.format(fav_path_idx))
+                    logger.info('Fav path {}'.format(fav_path))
+                    logger.info('Run {}'.format(successful_runs))
+                    builder = RunnerBuilder()
+                    builder.set_idx(successful_runs)
+                    builder.set_fav_idx(fav_index)
+                    builder.set_act_path_mtrx(act_path_mtrx)
+                    builder.set_cluster_centers(cluster_centers)
+                    builder.set_cluster_probs(cluster_probs)
+                    builder.set_fav_subpaths(fav_subpaths)
+                    builder.set_statistics(statistics)
+                    runner = builder.build()
+                    success = runner.run()
+                    if success:
+                        successful_runs += 1
+        steps = []
+        fav_indices = []
+        runs_or_paths = []
+        chances = []
+        for fav_idx, values_by_steps in statistics.items():
+            for step_idx, values in values_by_steps.items():
+                for i, value in enumerate(values):
+                    steps.append(step_idx)
+                    fav_indices.append(fav_idx)
+                    runs_or_paths.append(i + 1)
+                    chances.append(value)
+        df = DataFrame(data={
+            'step': steps,
+            'cluster': fav_indices,
+            'run': runs_or_paths,
+            'chance': chances
+        })
+        seaborn.tsplot(time='step', value='chance', unit='run', condition='cluster', data=df, ci=[95])
+        chart_exporting.save_chart(group_idx)
 
 
 if __name__ == '__main__':

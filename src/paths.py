@@ -7,6 +7,7 @@ CSV_EXT = "csv"
 JSON_EXT = "json"
 TXT_EXT = "txt"
 LOG_EXT = "log"
+PNG_EXT = "png"
 
 
 # noinspection PyTypeChecker
@@ -60,6 +61,14 @@ def build_output_table_path(output_path: Path, file_name: str) -> Path:
 
 def build_output_log_path(output_path: Path, file_name: str) -> Path:
     return output_path.joinpath(file_name).with_suffix(".{}".format(LOG_EXT)).resolve()
+
+
+def build_output_chart_path(output_path: Path, file_name: str) -> Path:
+    return output_path.joinpath(file_name).with_suffix(".{}".format(PNG_EXT)).resolve()
+
+
+def build_default_output_chart_path(file_name: str) -> Path:
+    return EXPORT_DIR.joinpath(file_name).with_suffix(".{}".format(PNG_EXT)).resolve()
 
 
 def build_subsection_dir_path(section_path: Path, file_name: str) -> Path:

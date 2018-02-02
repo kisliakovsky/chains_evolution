@@ -10,7 +10,7 @@ import logging
 
 logger = logging.getLogger('main_logger')
 
-SYNT_PATH_EXPECT_NUM = 750
+SYNT_PATH_EXPECT_NUM = 10000
 
 
 def str_len(s):
@@ -50,7 +50,7 @@ class RunnerBuilder(object):
     def set_act_fav_count(self, act_fav_count: int):
         self.__act_fav_count = act_fav_count
 
-    def set_statistics(self, statistics: Dict[int, List[Any]]):
+    def set_statistics(self, statistics: Dict[int, Dict[int, List[Any]]]):
         self.__statistics = statistics
 
     class __Runner(object):
@@ -103,11 +103,13 @@ class RunnerBuilder(object):
         def run(self):
             cluster_dist = calc_cluster_dist(self.cluster_probs, SYNT_PATH_EXPECT_NUM)
             synt_path_mtrx = generation.collect_all_pathways_by_clusters(cluster_dist)
+            set3 = [item for item in sorted(set(synt_path_mtrx[3]), key=len) if len(item) == 9]
+            set4 = [item for item in sorted(set(synt_path_mtrx[4]), key=len) if len(item) == 9]
             synt_paths = process.flatten_all_pathways_by_clusters(synt_path_mtrx)
             if self.fav_subpaths[-1] not in synt_paths:
                 logger.error('Not valid for estimation')
                 logger.info('Run skipped')
-                return
+                return False
             number_of_steps = len(self.fav_subpaths)
             intermediate_step_index = number_of_steps // 2
             last_step_index = number_of_steps - 1
@@ -117,16 +119,9 @@ class RunnerBuilder(object):
                 synt_paths = generation.generate_new_pathways(remained_paths, len(synt_paths))
                 chance = clustering.get_chance(synt_paths, self.act_path_mtrx, self.cluster_centers, self.fav_idx)
                 self.statistics[self.fav_idx][step_idx].append(chance)
-                pass
+            return True
 
     def build(self) -> '__Runner':
         args = (self.__idx, self.__fav_idx, self.__act_path_mtrx, self.__cluster_centers,
                 self.__cluster_probs, self.__fav_subpaths, self.__act_fav_count, self.__statistics)
         return RunnerBuilder.__Runner(*args)
-
-
-def key_func(a, b):
-    a_len = len(a)
-    b_len = len(b)
-
-    return a_len - b_len
