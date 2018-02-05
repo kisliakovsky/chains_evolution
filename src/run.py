@@ -110,25 +110,25 @@ class RunnerBuilder(object):
             cluster_dist = calc_cluster_dist(self.cluster_probs, SYNT_PATH_EXPECT_NUM)
             synt_path_mtrx = generation.collect_all_pathways_by_clusters(cluster_dist)
             lot = synt_path_mtrx[CURR_CLUSTER]
-            fav_path = random.choice(lot)
-            fav_vector = process.convert_path_to_vector(fav_path,
-                                                        process.flatten_all_pathways_by_clusters(
-                                                            self.act_path_mtrx))
-            res = clustering.determine_cluster(fav_vector, self.cluster_centers)
-            while CURR_CLUSTER not in res:
+            if self.fav_subpaths is None:
                 fav_path = random.choice(lot)
                 fav_vector = process.convert_path_to_vector(fav_path,
                                                             process.flatten_all_pathways_by_clusters(
                                                                 self.act_path_mtrx))
                 res = clustering.determine_cluster(fav_vector, self.cluster_centers)
-            self.__fav_subpaths = evolution.get_evo_subsequences(fav_path)
+                while CURR_CLUSTER not in res:
+                    fav_path = random.choice(lot)
+                    fav_vector = process.convert_path_to_vector(fav_path,
+                                                                process.flatten_all_pathways_by_clusters(
+                                                                    self.act_path_mtrx))
+                    res = clustering.determine_cluster(fav_vector, self.cluster_centers)
+                self.__fav_subpaths = evolution.get_evo_subsequences(fav_path)
             synt_paths = process.flatten_all_pathways_by_clusters(synt_path_mtrx)
-            # if self.fav_subpaths[-1] not in synt_paths:
-            #     logger.error('Not valid for estimation')
-            #     logger.info('Run skipped')
-            #     return False
+            if self.fav_subpaths[-1] not in synt_paths:
+                logger.error('Not valid for estimation')
+                logger.info('Run skipped')
+                return self.fav_subpaths[-1], False
             number_of_steps = len(self.fav_subpaths)
-            intermediate_step_index = number_of_steps // 2
             last_step_index = number_of_steps - 1
             last_dist = 0
             last_idx = 0
@@ -142,7 +142,7 @@ class RunnerBuilder(object):
                 last_idx = step_idx
             for i in range(last_idx + 1, Y_BOUND + 1):
                 self.statistics[self.fav_idx][i].append(last_dist)
-            return True
+            return self.fav_subpaths[-1], True
 
     def build(self) -> '__Runner':
         args = (self.__idx, self.__fav_idx, self.__act_path_mtrx, self.__cluster_centers,

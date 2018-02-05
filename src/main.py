@@ -86,7 +86,8 @@ def main():
                 for i in range(Y_BOUND + 1):
                     statistics[fav_index][i] = []
                 successful_runs = 0
-                while successful_runs < 1:
+                fav_subpaths = None
+                while successful_runs < 3:
                     logger.info('')
                     logger.info('Fav index {}'.format(fav_index))
                     logger.info('Run {}'.format(successful_runs))
@@ -97,8 +98,10 @@ def main():
                     builder.set_cluster_centers(cluster_centers)
                     builder.set_cluster_probs(cluster_probs)
                     builder.set_statistics(statistics)
+                    builder.set_fav_subpaths(fav_subpaths)
                     runner = builder.build()
-                    success = runner.run()
+                    p, success = runner.run()
+                    fav_subpaths = evolution.get_evo_subsequences(p)
                     if success:
                         successful_runs += 1
         steps = []
@@ -121,7 +124,7 @@ def main():
         dfs.append(df)
     common_df = pandas.concat(dfs, ignore_index=True)
     table_exporting.save_table(common_df, 0)
-    ax = seaborn.tsplot(time='step', value='distance', unit='run', condition='cluster', data=common_df, ci=[0],
+    ax = seaborn.tsplot(time='step', value='distance', unit='run', condition='cluster', data=common_df, ci=[95],
                         color='magenta', legend=False)
     ax.set_xlim(left=0, right=Y_BOUND + .6)
     ax.set_ylim(bottom=0, top=max([max(cluster_line) for cluster_line in cluster_lines]))
