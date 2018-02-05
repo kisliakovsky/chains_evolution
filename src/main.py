@@ -5,7 +5,7 @@ import logging
 from pandas import DataFrame
 import seaborn
 
-from src import evolution, pathways_processing as process, paths
+from src import evolution, pathways_processing as process, paths, distances
 from src.clusters_info import get_act_path_mtrx, get_cluster_probs
 from src.run import RunnerBuilder
 from src import chart_exporting
@@ -34,8 +34,16 @@ DELETED_PATHWAYS_KEY = "deleted"
 
 def main():
     act_path_mtrx = get_act_path_mtrx()
-    cluster_centers = ['XAFINFEY', 'XAFNIFEFIFEFY', 'XAFIY', 'XAFNIFEDY', 'XAFNIFEY', 'XAFIFEY', 'XAFENIFIFEY'] # squared euclid center
+    cluster_centers = ['XAFINFEY', 'XAFNIFEFIFEFY', 'XAFIY', 'XAFNIFEDY', 'XAFNIFEY', 'XAFIFEY', 'XAFENIFIFEY']  # squared euclid center
     cluster_centers = process.convert_paths_to_vectors(cluster_centers, act_path_mtrx)
+    act_vectors_mtrx = [process.convert_paths_to_vectors(row, act_path_mtrx) for row in act_path_mtrx]
+    cluster_lines = []
+    for row in act_vectors_mtrx:
+        cluster_line = []
+        for act_vector in row:
+            dist = distances.calculate_default_distance(act_vector['num'], cluster_centers[2]['num'])
+            cluster_line.append(dist)
+        cluster_lines.append(cluster_line)
     # group 0; cluster 0, 2, 5; length 7
     # group 1; cluster 3, 4; length 9
     # group 2; cluster 1, 6; length 12
@@ -44,15 +52,15 @@ def main():
             0: ['XAFEIEY', 'XAFIFDY', 'XAFNFDY'],
             2: ['XAFEFDY', 'XAFEIDY', 'XAFIEDY'],
             5: ['XAFIFEY', 'XAFNFEY', 'XANIFEY']
-        },
-        {
-            3: ['XAFENIEDY', 'XAFNEFEDY', 'XAFNFEFDY'],
-            4: ['XAFNFIFEY']
-        },
-        {
-            1: ['XAFNINFNIFEY', 'XAEFIFEFIFDY'],
-            6: ['XAFNINFIFEDY']
         }
+        # {
+        #     3: ['XAFENIEDY', 'XAFNEFEDY', 'XAFNFEFDY'],
+        #     4: ['XAFNFIFEY']
+        # }
+        # {
+        #     1: ['XAFNINFNIFEY', 'XAEFIFEFIFDY'],
+        #     6: ['XAFNINFIFEDY']
+        # }
     ]
     for group_idx, group in enumerate(groups):
         statistics = {}
@@ -101,7 +109,17 @@ def main():
             'distance': chances
         })
         ax = seaborn.tsplot(time='step', value='distance', unit='run', condition='cluster', data=df, ci=[65])
-        ax.set_xlim(left=0)
+        ax.set_xlim(left=0, right=4.2)
+        ax.set_ylim(bottom=0)
+        ys = cluster_lines[0]
+        xs = [4 for y in ys]
+        ax.plot(xs, ys, color='blue', linewidth=4.0)
+        ys = cluster_lines[2]
+        xs = [4.05 for y in ys]
+        ax.plot(xs, ys, color='orange', linewidth=4.0)
+        ys = cluster_lines[5]
+        xs = [4.1 for y in ys]
+        ax.plot(xs, ys, color='green', linewidth=4.0)
         chart_exporting.save_chart(group_idx)
 
 

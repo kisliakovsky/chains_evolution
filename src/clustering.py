@@ -137,7 +137,7 @@ def get_chance(synt_paths, act_path_mtrx, cluster_centers, fav_idx):
 
 
 def get_dist(synt_paths, act_path_mtrx, cluster_centers, fav_idx):
-    center = cluster_centers[fav_idx]
+    center = cluster_centers[2]  # cluster with shortest paths
     synt_vertices = set(synt_paths)
     synt_vectors = process.convert_paths_to_vectors(synt_vertices, act_path_mtrx)
     number_of_vertices = len(synt_vertices)
