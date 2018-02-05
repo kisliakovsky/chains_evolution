@@ -7,6 +7,8 @@ from src import distances, pathways_processing as process
 import logging
 logger = logging.getLogger('main_logger')
 
+CURR_CLUSTER = 6
+
 
 def get_cluster_centers(act_matrix: List[List[str]]) -> List[str]:
     centers = []
@@ -137,7 +139,7 @@ def get_chance(synt_paths, act_path_mtrx, cluster_centers, fav_idx):
 
 
 def get_dist(synt_paths, act_path_mtrx, cluster_centers, fav_idx):
-    center = cluster_centers[2]  # cluster with shortest paths
+    center = cluster_centers[CURR_CLUSTER]  # cluster with shortest paths
     synt_vertices = set(synt_paths)
     synt_vectors = process.convert_paths_to_vectors(synt_vertices, act_path_mtrx)
     number_of_vertices = len(synt_vertices)

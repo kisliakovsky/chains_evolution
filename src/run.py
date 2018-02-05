@@ -1,16 +1,22 @@
 from typing import List, Union, Dict, Any
+import random
+
 # noinspection PyPep8Naming
 from numpy import ndarray as NDArray
+import numpy
 
 from src import clustering
 from src.clusters_info import calc_cluster_dist
 from src import pathways_generating as generation
 from src import pathways_processing as process
+from src import evolution
 import logging
 
 logger = logging.getLogger('main_logger')
 
 SYNT_PATH_EXPECT_NUM = 750
+Y_BOUND = 9
+CURR_CLUSTER = 6
 
 
 def str_len(s):
@@ -103,22 +109,39 @@ class RunnerBuilder(object):
         def run(self):
             cluster_dist = calc_cluster_dist(self.cluster_probs, SYNT_PATH_EXPECT_NUM)
             synt_path_mtrx = generation.collect_all_pathways_by_clusters(cluster_dist)
+            lot = synt_path_mtrx[CURR_CLUSTER]
+            fav_path = random.choice(lot)
+            fav_vector = process.convert_path_to_vector(fav_path,
+                                                        process.flatten_all_pathways_by_clusters(
+                                                            self.act_path_mtrx))
+            res = clustering.determine_cluster(fav_vector, self.cluster_centers)
+            while CURR_CLUSTER not in res:
+                fav_path = random.choice(lot)
+                fav_vector = process.convert_path_to_vector(fav_path,
+                                                            process.flatten_all_pathways_by_clusters(
+                                                                self.act_path_mtrx))
+                res = clustering.determine_cluster(fav_vector, self.cluster_centers)
+            self.__fav_subpaths = evolution.get_evo_subsequences(fav_path)
             synt_paths = process.flatten_all_pathways_by_clusters(synt_path_mtrx)
-            if self.fav_subpaths[-1] not in synt_paths:
-                logger.error('Not valid for estimation')
-                logger.info('Run skipped')
-                return False
+            # if self.fav_subpaths[-1] not in synt_paths:
+            #     logger.error('Not valid for estimation')
+            #     logger.info('Run skipped')
+            #     return False
             number_of_steps = len(self.fav_subpaths)
             intermediate_step_index = number_of_steps // 2
             last_step_index = number_of_steps - 1
+            last_dist = 0
+            last_idx = 0
             for step_idx, fav_subpath in enumerate(self.fav_subpaths):
                 logger.info('Step {}/{}: {}'.format(step_idx, last_step_index, fav_subpath))
                 remained_paths, deleted_paths = process.filter_pathways(synt_paths, fav_subpath, step_idx == last_step_index)
                 synt_paths = generation.generate_new_pathways(remained_paths, len(synt_paths))
-                # chance = clustering.get_chance(synt_paths, self.act_path_mtrx, self.cluster_centers, self.fav_idx)
-                # self.statistics[self.fav_idx][step_idx].append(chance)
-                dist = clustering.get_dist(synt_paths, self.act_path_mtrx, self.cluster_centers, self.fav_idx)
+                dist = numpy.sqrt(clustering.get_dist(synt_paths, self.act_path_mtrx, self.cluster_centers, self.fav_idx))
                 self.statistics[self.fav_idx][step_idx].append(dist)
+                last_dist = dist
+                last_idx = step_idx
+            for i in range(last_idx + 1, Y_BOUND + 1):
+                self.statistics[self.fav_idx][i].append(last_dist)
             return True
 
     def build(self) -> '__Runner':

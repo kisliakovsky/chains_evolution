@@ -5,6 +5,8 @@ import logging
 import pandas
 from pandas import DataFrame
 import seaborn
+import numpy
+from matplotlib import pyplot
 
 from src import evolution, pathways_processing as process, paths, distances, table_exporting
 from src.clusters_info import get_act_path_mtrx, get_cluster_probs
@@ -32,6 +34,9 @@ REMAINED_PATHWAYS_KEY = "remained"
 NEW_PATHWAYS_KEY = "new"
 DELETED_PATHWAYS_KEY = "deleted"
 
+Y_BOUND = 9
+CURR_CLUSTER = 6
+
 
 def main():
     act_path_mtrx = get_act_path_mtrx()
@@ -42,9 +47,13 @@ def main():
     for row in act_vectors_mtrx:
         cluster_line = []
         for act_vector in row:
-            dist = distances.calculate_default_distance(act_vector['num'], cluster_centers[2]['num'])
+            dist = numpy.sqrt(distances.calculate_default_distance(act_vector['num'], cluster_centers[CURR_CLUSTER]['num']))
             cluster_line.append(dist)
         cluster_lines.append(cluster_line)
+    cluster_points = []
+    for cluster_center in cluster_centers:
+        dist = numpy.sqrt(distances.calculate_default_distance(cluster_center['num'], cluster_centers[CURR_CLUSTER]['num']))
+        cluster_points.append([dist])
     # group 0; cluster 0, 2, 5; length 7
     # group 1; cluster 3, 4; length 9
     # group 2; cluster 1, 6; length 12
@@ -64,27 +73,7 @@ def main():
     #     }
     # ]
     groups = [
-        {
-            0: ['XAFEIEY', 'XAFIFDY', 'XAFNFDY']
-        },
-        {
-            1: ['XAFNINFNIFEY', 'XAEFIFEFIFDY']
-        },
-        {
-            2: ['XAFEFDY', 'XAFEIDY', 'XAFIEDY']
-        },
-        {
-            3: ['XAFENIEDY', 'XAFNEFEDY', 'XAFNFEFDY']
-        },
-        {
-            4: ['XAFNFIFEY']
-        },
-        {
-            5: ['XAFIFEY', 'XAFNFEY', 'XANIFEY']
-        },
-        {
-            6: ['XAFNINFIFEDY']
-        }
+        {i: [''] for i in range(20)}
     ]
     dfs = []
     for group_idx, group in enumerate(groups):
@@ -93,16 +82,13 @@ def main():
             statistics[fav_index] = {}
             for fav_path_idx, fav_path in enumerate(fav_paths):
                 act_path_mtrx = get_act_path_mtrx()
-                fav_subpaths = evolution.get_evo_subsequences(fav_path)
                 cluster_probs = get_cluster_probs()
-                for i, _ in enumerate(fav_subpaths):
+                for i in range(Y_BOUND + 1):
                     statistics[fav_index][i] = []
                 successful_runs = 0
-                while successful_runs < 5:
+                while successful_runs < 1:
                     logger.info('')
                     logger.info('Fav index {}'.format(fav_index))
-                    logger.info('Fav path index {}'.format(fav_path_idx))
-                    logger.info('Fav path {}'.format(fav_path))
                     logger.info('Run {}'.format(successful_runs))
                     builder = RunnerBuilder()
                     builder.set_idx(successful_runs)
@@ -110,7 +96,6 @@ def main():
                     builder.set_act_path_mtrx(act_path_mtrx)
                     builder.set_cluster_centers(cluster_centers)
                     builder.set_cluster_probs(cluster_probs)
-                    builder.set_fav_subpaths(fav_subpaths)
                     builder.set_statistics(statistics)
                     runner = builder.build()
                     success = runner.run()
@@ -136,30 +121,43 @@ def main():
         dfs.append(df)
     common_df = pandas.concat(dfs, ignore_index=True)
     table_exporting.save_table(common_df, 0)
-    ax = seaborn.tsplot(time='step', value='distance', unit='run', condition='cluster', data=common_df, ci=[65])
-    ax.set_xlim(left=0, right=9.2)
-    ax.set_ylim(bottom=0)
+    ax = seaborn.tsplot(time='step', value='distance', unit='run', condition='cluster', data=common_df, ci=[0],
+                        color='magenta', legend=False)
+    ax.set_xlim(left=0, right=Y_BOUND + .6)
+    ax.set_ylim(bottom=0, top=max([max(cluster_line) for cluster_line in cluster_lines]))
+    ax.set_ylabel('distance, symbol')
     ys = cluster_lines[0]
-    xs = [4 for y in ys]
-    ax.plot(xs, ys, color='blue', linewidth=2.0)
+    xs = [Y_BOUND + .05 for y in ys]
+    cluster0, = ax.plot(xs, ys, color='blue', linewidth=1.0)
+    ax.scatter([Y_BOUND + .05], cluster_points[0], s=20, c='blue')
     ys = cluster_lines[2]
-    xs = [4.05 for y in ys]
-    ax.plot(xs, ys, color='green', linewidth=2.0)
+    xs = [Y_BOUND + .15 for y in ys]
+    cluster2, = ax.plot(xs, ys, color='green', linewidth=1.0)
+    ax.scatter([Y_BOUND + .15], cluster_points[2], s=20, c='green')
     ys = cluster_lines[5]
-    xs = [4.1 for y in ys]
-    ax.plot(xs, ys, color='brown', linewidth=2.0)
+    xs = [Y_BOUND + .3 for y in ys]
+    cluster5, = ax.plot(xs, ys, color='brown', linewidth=1.0)
+    ax.scatter([Y_BOUND + .3], cluster_points[5], s=20, c='brown')
     ys = cluster_lines[3]
-    xs = [6.05 for y in ys]
-    ax.plot(xs, ys, color='red', linewidth=2.0)
+    xs = [Y_BOUND + .2 for y in ys]
+    cluster3, = ax.plot(xs, ys, color='red', linewidth=1.0)
+    ax.scatter([Y_BOUND + .2], cluster_points[3], s=20, c='red')
     ys = cluster_lines[4]
-    xs = [6.1 for y in ys]
-    ax.plot(xs, ys, color='purple', linewidth=2.0)
+    xs = [Y_BOUND + .1 for y in ys]
+    cluster4, = ax.plot(xs, ys, color='purple', linewidth=1.0)
+    ax.scatter([Y_BOUND + .1], cluster_points[4], s=20, c='purple')
     ys = cluster_lines[1]
-    xs = [9.05 for y in ys]
-    ax.plot(xs, ys, color='orange', linewidth=2.0)
+    xs = [Y_BOUND + .25 for y in ys]
+    cluster1, = ax.plot(xs, ys, color='orange', linewidth=1.0)
+    ax.scatter([Y_BOUND + .25], cluster_points[1], s=20, c='orange')
     ys = cluster_lines[6]
-    xs = [9.1 for y in ys]
-    ax.plot(xs, ys, color='pink', linewidth=2.0)
+    xs = [Y_BOUND for y in ys]
+    cluster6, = ax.plot(xs, ys, color='magenta', linewidth=1.0)
+    ax.scatter([Y_BOUND], cluster_points[6], s=20, c='magenta')
+    pyplot.legend([cluster0, cluster1, cluster2, cluster3, cluster4, cluster5, cluster6],
+                  ['cluster 0', 'cluster 1', 'cluster 2', 'cluster 3', 'cluster 4', 'cluster 5', 'cluster 6'],
+                  loc='upper center', bbox_to_anchor=(0.5, 1.05),
+                  ncol=3, fancybox=True)
     chart_exporting.save_chart(0)
 
 
