@@ -10,7 +10,7 @@ import logging
 
 logger = logging.getLogger('main_logger')
 
-SYNT_PATH_EXPECT_NUM = 10000
+SYNT_PATH_EXPECT_NUM = 750
 
 
 def str_len(s):

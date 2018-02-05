@@ -40,18 +40,18 @@ def main():
     # group 1; cluster 3, 4; length 9
     # group 2; cluster 1, 6; length 12
     groups = [
-        # {
-        #     0: ['XAFEIEY', 'XAFIFDY', 'XAFNFDY'],
-        #     2: ['XAFEFDY', 'XAFEIDY', 'XAFIEDY'],
-        #     5: ['XAFIFEY', 'XAFNFEY', 'XANIFEY']
-        # },
-        # {
-        #     3: ['XAFENIEDY', 'XAFNEFEDY', 'XAFNFEFDY'],
-        #     4: ['XAFNFIFEY']
-        # },
         {
-            1: ['XAFNINFNIFEY', 'XAEFIFEFIFDY', 'XAFNINFNIFEY'],
-            6: ['XAFENFIFEFDY', 'XAFNINFIFEDY', 'XAFENEIFEIEY']
+            0: ['XAFEIEY', 'XAFIFDY', 'XAFNFDY'],
+            2: ['XAFEFDY', 'XAFEIDY', 'XAFIEDY'],
+            5: ['XAFIFEY', 'XAFNFEY', 'XANIFEY']
+        },
+        {
+            3: ['XAFENIEDY', 'XAFNEFEDY', 'XAFNFEFDY'],
+            4: ['XAFNFIFEY']
+        },
+        {
+            1: ['XAFNINFNIFEY', 'XAEFIFEFIFDY'],
+            6: ['XAFNINFIFEDY']
         }
     ]
     for group_idx, group in enumerate(groups):
@@ -98,9 +98,10 @@ def main():
             'step': steps,
             'cluster': fav_indices,
             'run': runs_or_paths,
-            'chance': chances
+            'distance': chances
         })
-        ax = seaborn.tsplot(time='step', value='chance', unit='run', condition='cluster', data=df, ci=[95])
+        ax = seaborn.tsplot(time='step', value='distance', unit='run', condition='cluster', data=df, ci=[65])
+        ax.set_xlim(left=0)
         chart_exporting.save_chart(group_idx)
 
 
