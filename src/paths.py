@@ -59,6 +59,10 @@ def build_output_table_path(output_path: Path, file_name: str) -> Path:
     return output_path.joinpath(file_name).with_suffix(".{}".format(CSV_EXT)).resolve()
 
 
+def build_default_output_table_path(file_name: str) -> Path:
+    return EXPORT_DIR.joinpath(file_name).with_suffix(".{}".format(CSV_EXT)).resolve()
+
+
 def build_output_log_path(output_path: Path, file_name: str) -> Path:
     return output_path.joinpath(file_name).with_suffix(".{}".format(LOG_EXT)).resolve()
 

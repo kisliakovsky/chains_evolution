@@ -2,10 +2,11 @@
 
 import logging
 
+import pandas
 from pandas import DataFrame
 import seaborn
 
-from src import evolution, pathways_processing as process, paths, distances
+from src import evolution, pathways_processing as process, paths, distances, table_exporting
 from src.clusters_info import get_act_path_mtrx, get_cluster_probs
 from src.run import RunnerBuilder
 from src import chart_exporting
@@ -47,21 +48,45 @@ def main():
     # group 0; cluster 0, 2, 5; length 7
     # group 1; cluster 3, 4; length 9
     # group 2; cluster 1, 6; length 12
+    # groups = [
+    #     {
+    #         0: ['XAFEIEY', 'XAFIFDY', 'XAFNFDY'],
+    #         2: ['XAFEFDY', 'XAFEIDY', 'XAFIEDY'],
+    #         5: ['XAFIFEY', 'XAFNFEY', 'XANIFEY']
+    #     },
+    #     {
+    #         3: ['XAFENIEDY', 'XAFNEFEDY', 'XAFNFEFDY'],
+    #         4: ['XAFNFIFEY']
+    #     },
+    #     {
+    #         1: ['XAFNINFNIFEY', 'XAEFIFEFIFDY'],
+    #         6: ['XAFNINFIFEDY']
+    #     }
+    # ]
     groups = [
         {
-            0: ['XAFEIEY', 'XAFIFDY', 'XAFNFDY'],
-            2: ['XAFEFDY', 'XAFEIDY', 'XAFIEDY'],
+            0: ['XAFEIEY', 'XAFIFDY', 'XAFNFDY']
+        },
+        {
+            1: ['XAFNINFNIFEY', 'XAEFIFEFIFDY']
+        },
+        {
+            2: ['XAFEFDY', 'XAFEIDY', 'XAFIEDY']
+        },
+        {
+            3: ['XAFENIEDY', 'XAFNEFEDY', 'XAFNFEFDY']
+        },
+        {
+            4: ['XAFNFIFEY']
+        },
+        {
             5: ['XAFIFEY', 'XAFNFEY', 'XANIFEY']
+        },
+        {
+            6: ['XAFNINFIFEDY']
         }
-        # {
-        #     3: ['XAFENIEDY', 'XAFNEFEDY', 'XAFNFEFDY'],
-        #     4: ['XAFNFIFEY']
-        # }
-        # {
-        #     1: ['XAFNINFNIFEY', 'XAEFIFEFIFDY'],
-        #     6: ['XAFNINFIFEDY']
-        # }
     ]
+    dfs = []
     for group_idx, group in enumerate(groups):
         statistics = {}
         for fav_index, fav_paths in group.items():
@@ -108,19 +133,34 @@ def main():
             'run': runs_or_paths,
             'distance': chances
         })
-        ax = seaborn.tsplot(time='step', value='distance', unit='run', condition='cluster', data=df, ci=[65])
-        ax.set_xlim(left=0, right=4.2)
-        ax.set_ylim(bottom=0)
-        ys = cluster_lines[0]
-        xs = [4 for y in ys]
-        ax.plot(xs, ys, color='blue', linewidth=4.0)
-        ys = cluster_lines[2]
-        xs = [4.05 for y in ys]
-        ax.plot(xs, ys, color='orange', linewidth=4.0)
-        ys = cluster_lines[5]
-        xs = [4.1 for y in ys]
-        ax.plot(xs, ys, color='green', linewidth=4.0)
-        chart_exporting.save_chart(group_idx)
+        dfs.append(df)
+    common_df = pandas.concat(dfs, ignore_index=True)
+    table_exporting.save_table(common_df, 0)
+    ax = seaborn.tsplot(time='step', value='distance', unit='run', condition='cluster', data=common_df, ci=[65])
+    ax.set_xlim(left=0, right=9.2)
+    ax.set_ylim(bottom=0)
+    ys = cluster_lines[0]
+    xs = [4 for y in ys]
+    ax.plot(xs, ys, color='blue', linewidth=2.0)
+    ys = cluster_lines[2]
+    xs = [4.05 for y in ys]
+    ax.plot(xs, ys, color='green', linewidth=2.0)
+    ys = cluster_lines[5]
+    xs = [4.1 for y in ys]
+    ax.plot(xs, ys, color='brown', linewidth=2.0)
+    ys = cluster_lines[3]
+    xs = [6.05 for y in ys]
+    ax.plot(xs, ys, color='red', linewidth=2.0)
+    ys = cluster_lines[4]
+    xs = [6.1 for y in ys]
+    ax.plot(xs, ys, color='purple', linewidth=2.0)
+    ys = cluster_lines[1]
+    xs = [9.05 for y in ys]
+    ax.plot(xs, ys, color='orange', linewidth=2.0)
+    ys = cluster_lines[6]
+    xs = [9.1 for y in ys]
+    ax.plot(xs, ys, color='pink', linewidth=2.0)
+    chart_exporting.save_chart(0)
 
 
 if __name__ == '__main__':
