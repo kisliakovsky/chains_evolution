@@ -7,7 +7,7 @@ from src import distances, pathways_processing as process
 import logging
 logger = logging.getLogger('main_logger')
 
-CURR_CLUSTER = 6
+CURR_CLUSTER = 1
 
 
 def get_cluster_centers(act_matrix: List[List[str]]) -> List[str]:

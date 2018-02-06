@@ -15,8 +15,8 @@ import logging
 logger = logging.getLogger('main_logger')
 
 SYNT_PATH_EXPECT_NUM = 750
-Y_BOUND = 9
-CURR_CLUSTER = 6
+Y_BOUND = 15
+CURR_CLUSTER = 1
 
 
 def str_len(s):

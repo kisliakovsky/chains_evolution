@@ -34,8 +34,8 @@ REMAINED_PATHWAYS_KEY = "remained"
 NEW_PATHWAYS_KEY = "new"
 DELETED_PATHWAYS_KEY = "deleted"
 
-Y_BOUND = 9
-CURR_CLUSTER = 6
+Y_BOUND = 15
+CURR_CLUSTER = 1
 
 
 def main():
@@ -125,7 +125,7 @@ def main():
     common_df = pandas.concat(dfs, ignore_index=True)
     table_exporting.save_table(common_df, 0)
     ax = seaborn.tsplot(time='step', value='distance', unit='run', condition='cluster', data=common_df, ci=[95],
-                        color='magenta', legend=False)
+                        color='orange', legend=False)
     ax.set_xlim(left=0, right=Y_BOUND + .6)
     ax.set_ylim(bottom=0, top=max([max(cluster_line) for cluster_line in cluster_lines]))
     ax.set_ylabel('distance, symbol')
@@ -150,13 +150,13 @@ def main():
     cluster4, = ax.plot(xs, ys, color='purple', linewidth=1.0)
     ax.scatter([Y_BOUND + .1], cluster_points[4], s=20, c='purple')
     ys = cluster_lines[1]
-    xs = [Y_BOUND + .25 for y in ys]
-    cluster1, = ax.plot(xs, ys, color='orange', linewidth=1.0)
-    ax.scatter([Y_BOUND + .25], cluster_points[1], s=20, c='orange')
-    ys = cluster_lines[6]
     xs = [Y_BOUND for y in ys]
+    cluster1, = ax.plot(xs, ys, color='orange', linewidth=1.0)
+    ax.scatter([Y_BOUND], cluster_points[1], s=20, c='orange')
+    ys = cluster_lines[6]
+    xs = [Y_BOUND + .25 for y in ys]
     cluster6, = ax.plot(xs, ys, color='magenta', linewidth=1.0)
-    ax.scatter([Y_BOUND], cluster_points[6], s=20, c='magenta')
+    ax.scatter([Y_BOUND + .25], cluster_points[6], s=20, c='magenta')
     pyplot.legend([cluster0, cluster1, cluster2, cluster3, cluster4, cluster5, cluster6],
                   ['cluster 0', 'cluster 1', 'cluster 2', 'cluster 3', 'cluster 4', 'cluster 5', 'cluster 6'],
                   loc='upper center', bbox_to_anchor=(0.5, 1.05),
